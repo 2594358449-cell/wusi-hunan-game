@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>五四风雷在湖南</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+  html, body { height: 100%; }
+  body {
+    font-family: "Noto Serif SC", "Songti SC", "SimSun", serif;
+    background: #14110e; color: #2b2620; overflow: hidden;
+  }
+  #app { position: relative; width: 100%; max-width: 480px; height: 100%; margin: 0 auto; overflow: hidden; }
+  section { position: absolute; inset: 0; display: none; flex-direction: column; }
+  section.active { display: flex; }
+
+  /* ---------- 标题页 ---------- */
+  #title-screen {
+    align-items: center; justify-content: flex-end; text-align: center;
+    padding: 40px 32px 56px; background: #1a1612;
+  }
+  #title-bg {
+    position: absolute; inset: 0; background: #2a241c center/cover no-repeat;
+    image-rendering: pixelated; opacity: 0; transition: opacity 1.2s ease;
+  }
+  #title-bg::after {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 50% 78%, rgba(20,17,14,.94) 0%, rgba(20,17,14,.62) 42%, rgba(20,17,14,.35) 70%),
+      linear-gradient(to bottom, rgba(20,17,14,.55), rgba(20,17,14,.15) 30%, rgba(20,17,14,.1) 60%, rgba(20,17,14,.78));
+  }
+  #title-content { position: relative; z-index: 2; }
+  #title-screen .years { font-size: 14px; letter-spacing: 6px; color: #cbbb96; margin-bottom: 20px; }
+  #title-screen h1 {
+    font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #f2e8d2;
+    line-height: 1.5; margin-bottom: 14px; text-shadow: 0 2px 24px rgba(0,0,0,.6);
+  }
+  #title-screen .sub { font-size: 15px; color: #d8c9a8; letter-spacing: 3px; margin-bottom: 16px; }
+  #title-screen .ctrl-hint { font-size: 12px; color: #8a7a5c; letter-spacing: 2px; margin-bottom: 24px; line-height: 1.8; }
+  /* 加载进度条 */
+  #load-wrap { width: 220px; margin: 0 auto; }
+  #load-bar {
+    width: 100%; height: 8px; border: 2px solid #8a6a3a; background: rgba(20,17,14,.6);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.5);
+  }
+  #load-fill {
+    height: 100%; width: 0%;
+    background: repeating-linear-gradient(90deg, #b8863a 0 6px, #8a5a28 6px 12px);
+    transition: width .18s ease-out;
+  }
+  #load-text { margin-top: 8px; font-size: 12px; color: #c8a858; letter-spacing: 2px; text-align: center; }
+  #start-btn {
+    border: 1.5px solid #b85c5c; color: #f0e4cc; background: rgba(140,43,43,.32);
+    font-family: inherit; font-size: 17px; letter-spacing: 6px; padding: 13px 46px;
+    cursor: pointer; transition: all .25s;
+  }
+  #start-btn:active { background: rgba(140,43,43,.75); }
+  #continue-btn {
+    margin-top: 12px; display: block; margin-left: auto; margin-right: auto;
+    border: 1.5px solid #8a7a5c; color: #c9bda2; background: transparent;
+    font-family: inherit; font-size: 13px; letter-spacing: 4px; padding: 9px 30px;
+    cursor: pointer; transition: all .25s;
+  }
+  #continue-btn:active { background: rgba(200,180,140,.2); }
+
+  /* ---------- 转场卡 ---------- */
+  #scene-overlay {
+    position: absolute; inset: 0; z-index: 60; background: #100d0a;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: opacity .5s;
+  }
+  #scene-overlay.show { opacity: 1; pointer-events: auto; }
+  #scene-overlay .num { font-size: 14px; letter-spacing: 6px; color: #a08b68; margin-bottom: 14px; }
+  #scene-overlay .name { font-size: 26px; letter-spacing: 10px; color: #ece0c6; margin-bottom: 16px; }
+  #scene-overlay .place { font-size: 13px; letter-spacing: 3px; color: #8a7a5c; }
+
+  /* ---------- 像素网格转场 ---------- */
+  #transition-overlay {
+    position: absolute; inset: 0; z-index: 65; pointer-events: none;
+  }
+  .px-block {
+    position: absolute; background: #0f0c09; opacity: 0;
+  }
+  #transition-overlay.fill .px-block { animation: pxIn .18s steps(2) forwards; }
+  #transition-overlay.clear .px-block { animation: pxOut .18s steps(2) forwards; }
+  @keyframes pxIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes pxOut { from { opacity: 1; } to { opacity: 0; } }
+
+  /* ---------- 游戏横版画面 ---------- */
+  #game-screen { background: #241f19; overflow: hidden; }
+  #scene-bg {
+    position: absolute; top: 0; bottom: 0; left: 0; width: 100%;
+    background: center/cover no-repeat; image-rendering: pixelated;
+    transform-origin: left center;
+  }
+  #scene-bg::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(20,17,14,.12) 0%, rgba(20,17,14,.35) 70%, rgba(20,17,14,.7) 100%);
+  }
+  #world { position: absolute; top: 0; left: 0; height: 100%; }
+  /* 地面 - 分层像素路面 */
+  #ground {
+    position: absolute; left: 0; bottom: 0; height: 18%; width: 100%;
+    background:
+      /* 路面砖缝（垂直接缝） */
+      repeating-linear-gradient(90deg, transparent 0 30px, rgba(0,0,0,.25) 30px 31px, transparent 31px 62px),
+      /* 横向明暗砖层 */
+      repeating-linear-gradient(0deg, #4a3d2c 0 12px, #3e3224 12px 24px),
+      /* 整体从上亮到下暗 */
+      linear-gradient(to bottom, #5a4a35 0%, #3a2f22 45%, #221b12 100%);
+    border-top: 3px solid #7a6648;
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.06);
+  }
+  /* 地平线雾带（背景与地面交界处的大气透视，最远层） */
+  #ground::before {
+    content: ""; position: absolute; top: -20px; left: 0; right: 0; height: 20px;
+    background: linear-gradient(to bottom, rgba(120,100,80,0) 0%, rgba(90,74,53,.45) 70%, rgba(90,74,53,.85) 100%);
+    pointer-events: none;
+  }
+  /* 地面边缘小草丛 & 石子（前景装饰，最近层） */
+  #ground::after {
+    content: ""; position: absolute; top: -6px; left: 0; right: 0; height: 6px;
+    background-image:
+      radial-gradient(circle at 12px 4px, #4a6a3a 2px, transparent 3px),
+      radial-gradient(circle at 80px 2px, #5a7a45 2px, transparent 3px),
+      radial-gradient(circle at 150px 5px, #3a2f22 3px, transparent 4px),
+      radial-gradient(circle at 220px 3px, #4a6a3a 2px, transparent 3px),
+      radial-gradient(circle at 300px 5px, #3a2f22 2px, transparent 3px);
+    background-repeat: repeat-x;
+    background-size: 340px 6px;
+    pointer-events: none;
+  }
+  /* 玩家脚下影子 */
+  #player .shadow {
+    position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%);
+    width: 26px; height: 6px; border-radius: 50%;
+    background: rgba(0,0,0,.45); filter: blur(1px);
+    transition: opacity .1s, transform .1s;
+    z-index: -1;
+  }
+  #player.jumping .shadow { opacity: .15; transform: translateX(-50%) scale(.5); }
+  /* NPC */
+  .npc {
+    position: absolute; display: flex; flex-direction: column; align-items: center;
+    cursor: pointer; bottom: 18%;
+  }
+  .npc .sprite { width: 36px; height: 62px; image-rendering: pixelated; }
+  .npc .tag {
+    margin-top: 3px; padding: 2px 8px; font-size: 11px; letter-spacing: 1px;
+    background: rgba(20,17,14,.8); color: #f0e4cc; border: 1px solid rgba(200,180,140,.4); white-space: nowrap;
+  }
+  .npc .bubble {
+    position: absolute; top: -22px; font-size: 16px;
+    animation: bounce 1.2s ease-in-out infinite;
+  }
+  @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-5px)} }
+
+  /* 障碍物基类 */
+  .obstacle {
+    position: absolute; bottom: 18%;
+  }
+  /* 木箱：竖板缝 + 交叉木撑 + 四角铁钉 */
+  .obstacle.crate {
+    background:
+      linear-gradient(135deg, rgba(58,42,24,.5) 46%, transparent 46% 54%, rgba(58,42,24,.5) 54%) 0 0/100% 100%,
+      repeating-linear-gradient(90deg, transparent 0 10px, rgba(0,0,0,.22) 10px 12px),
+      linear-gradient(#a88450, #7a5c34);
+    border: 2px solid #3a2a18;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.28), inset 0 3px 0 rgba(255,240,210,.15);
+  }
+  .obstacle.crate::before {
+    content:""; position:absolute; inset:2px; pointer-events:none;
+    background:
+      radial-gradient(circle 1.5px at 4px 4px, #2e2010 98%, transparent),
+      radial-gradient(circle 1.5px at calc(100% - 4px) 4px, #2e2010 98%, transparent),
+      radial-gradient(circle 1.5px at 4px calc(100% - 4px), #2e2010 98%, transparent),
+      radial-gradient(circle 1.5px at calc(100% - 4px) calc(100% - 4px), #2e2010 98%, transparent);
+  }
+  /* 石桶/墨桶：三道铁箍 + 顶部桶口 */
+  .obstacle.barrel {
+    border-radius: 7px 7px 4px 4px;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 9px, #2a2e34 9px 12px),
+      linear-gradient(90deg, #4a3828, #6b5238 28%, #8a6c48 50%, #6b5238 72%, #3a2c1e);
+    border: 2px solid #241a10;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.12);
+  }
+  .obstacle.barrel::before {
+    content:""; position:absolute; top:1px; left:15%; right:15%; height:4px;
+    background: radial-gradient(ellipse at center, #1a1410 55%, #4a3828 60%, #2a1e14 100%);
+    border-radius: 50%;
+  }
+  /* 拒马（游行街垒）：X 交叉木架 + 顶端尖刺 */
+  .obstacle.barricade {
+    background:
+      linear-gradient(45deg, transparent 45%, #7a5e40 45% 55%, transparent 55%) 0 0/100% 100%,
+      linear-gradient(-45deg, transparent 45%, #7a5e40 45% 55%, transparent 55%) 0 0/100% 100%,
+      linear-gradient(#9a7a54, #5a4630);
+    border: 2px solid #3a2c1c;
+    border-top: 3px solid #a8845a;
+    box-shadow: inset 0 -3px 0 rgba(0,0,0,.3);
+  }
+  .obstacle.barricade::before {
+    content:""; position:absolute; top:-6px; left:2px; right:2px; height:6px;
+    background: repeating-linear-gradient(90deg,
+      transparent 0 3px, #c8c0b0 3px 5px, transparent 5px 10px);
+    clip-path: polygon(0 100%, 8% 0, 16% 100%, 28% 100%, 36% 0, 44% 100%, 56% 100%, 64% 0, 72% 100%, 84% 100%, 92% 0, 100% 100%);
+  }
+  /* 高书架（图书馆）：彩色书脊 + 隔板 + 顶沿 */
+  .obstacle.shelf {
+    background:
+      repeating-linear-gradient(0deg,
+        #241a10 0 3px,
+        #c84a3a 3px 7px, #4a6a8a 7px 10px, #c8a84a 10px 13px, #5a7a4a 13px 16px, #8a4a6a 16px 18px,
+        #241a10 18px 22px,
+        #4a6a8a 22px 25px, #c84a3a 25px 29px, #5a7a4a 29px 32px, #c8a84a 32px 34px,
+        #241a10 34px 38px),
+      #241a10;
+    border: 2px solid #1a120a;
+    border-top: 4px solid #3a2c1c;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.1);
+  }
+  .obstacle.shelf::before {
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background: repeating-linear-gradient(90deg, transparent 0 7px, rgba(0,0,0,.28) 7px 8px);
+  }
+  /* 船台（码头登船平台）：木板 + 铆钉 + 系缆桩 */
+  .obstacle.deck {
+    background:
+      repeating-linear-gradient(90deg, #6b5238 0 14px, #5a4630 14px 16px, #6b5238 16px 30px, #4a3828 30px 32px),
+      linear-gradient(#7a5e40, #4a3828);
+    border: 2px solid #241a10;
+    border-top: 4px solid #9a7a4a;
+    box-shadow: 0 -4px 12px rgba(0,0,0,.3);
+  }
+  .obstacle.deck::before {
+    content:""; position:absolute; top:6px; left:6px; right:6px; height:0;
+    background:
+      radial-gradient(circle 1.5px at 4px 0, #2a1e12 98%, transparent),
+      radial-gradient(circle 1.5px at 30% 0, #2a1e12 98%, transparent),
+      radial-gradient(circle 1.5px at 60% 0, #2a1e12 98%, transparent),
+      radial-gradient(circle 1.5px at calc(100% - 6px) 0, #2a1e12 98%, transparent);
+  }
+  /* ========== 收集品：像素图形建模（无文字） ========== */
+  .item {
+    position: absolute; width: 20px; height: 22px; bottom: 18%;
+    animation: float 1.4s ease-in-out infinite;
+    filter: drop-shadow(0 0 6px rgba(240,200,80,.7));
+  }
+  /* 传单：米黄纸 + 右上折角 + 三行墨字 */
+  .item.flyer {
+    background:
+      linear-gradient(0deg, transparent 0 6px, #8a6a4a 6px 7px, transparent 7px 11px, #8a6a4a 11px 12px, transparent 12px 16px, #8a6a4a 16px 17px, transparent 17px),
+      linear-gradient(225deg, transparent 0 78%, #b09468 78% 88%, #e8d4a0 88%),
+      #e8d4a0;
+    border: 1.5px solid #8a6a3a;
+  }
+  /* 书：红封面 + 米色书脊 + 书页缝 */
+  .item.book {
+    background:
+      linear-gradient(90deg, #e8d8b0 0 3px, #a8322a 3px 100%),
+      #c84a3a;
+    border: 1.5px solid #5a1e18;
+    box-shadow: inset -3px 0 0 rgba(0,0,0,.2);
+  }
+  .item.book::after {
+    content:""; position:absolute; left:5px; right:2px; top:6px; height:8px;
+    background: linear-gradient(0deg, transparent 0 2px, rgba(255,235,200,.5) 2px 3px, transparent 3px 5px, rgba(255,235,200,.5) 5px 6px, transparent 6px);
+  }
+  /* 稿纸：竖格宣纸 + 竖行墨字 */
+  .item.paper {
+    background:
+      repeating-linear-gradient(90deg, transparent 0 4px, rgba(90,110,130,.35) 4px 5px),
+      repeating-linear-gradient(0deg, transparent 0 5px, rgba(70,90,110,.25) 5px 6px),
+      #eef2f0;
+    border: 1.5px solid #4a5a6a;
+  }
+  .item.paper::after {
+    content:""; position:absolute; top:2px; left:3px; width:2px; height:14px;
+    background: #2a3a4a;
+    box-shadow: 5px 1px 0 #2a3a4a, 10px 0 0 #2a3a4a, 13px 2px 0 #2a3a4a;
+    opacity: .8;
+  }
+  /* 信件：信封 + V 字封口 + 火漆印 */
+  .item.letter {
+    background:
+      linear-gradient(155deg, transparent 48%, rgba(120,100,60,.3) 48% 52%, transparent 52%),
+      linear-gradient(-155deg, transparent 48%, rgba(120,100,60,.3) 48% 52%, transparent 52%),
+      linear-gradient(0deg, #ddd0a8, #e8dcb8);
+    border: 1.5px solid #6a5a3a;
+  }
+  .item.letter::after {
+    content:""; position:absolute; top:45%; left:50%; transform:translate(-50%,-50%);
+    width:6px; height:6px; background:#a8322a; border-radius:50%;
+    box-shadow: inset -1px -1px 0 rgba(0,0,0,.35), 0 0 2px rgba(168,50,42,.6);
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-6px)} }
+  .item.collected { animation: pop .3s forwards; }
+  @keyframes pop { 0%{transform:scale(1);opacity:1} 100%{transform:scale(2);opacity:0} }
+
+  /* 顶部收集计数 */
+  #item-count {
+    position: absolute; top: 14px; right: 14px; z-index: 35;
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 12px; font-size: 13px; color: #f0c060;
+    background: rgba(20,17,14,.6); border: 1px solid rgba(240,200,80,.35);
+  }
+  #sound-btn {
+    position: absolute; top: 14px; right: 118px; z-index: 35;
+    width: 34px; height: 30px; font-size: 15px; cursor: pointer;
+    background: rgba(20,17,14,.6); border: 1px solid rgba(240,200,80,.35);
+    color: #f0c060; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ---------- 像素角色系统（主角+NPC共用） ---------- */
+  .char {
+    position: relative; width: 32px; height: 56px;
+    --hair: #1c1410; --skin: #e6c49a; --skin-shade: #c9a07a;
+    --robe: #5a7a9a; --robe-shade: #3f5a75; --pants: #332b22;
+  }
+  /* 头发（含刘海、鬓角、顶部高光） */
+  .char .hair  { position:absolute; top:0; left:3px; width:26px; height:11px; background:var(--hair);
+    box-shadow: inset 0 2px 0 rgba(255,240,210,.14); }
+  .char .hair::before { content:""; position:absolute; bottom:-3px; left:0; width:6px; height:5px; background:var(--hair); box-shadow: 8px 0 0 var(--hair), 16px 0 0 var(--hair); }
+  .char .hair::after  { content:""; position:absolute; top:5px; left:-2px; width:3px; height:5px; background:var(--hair); box-shadow: 26px 0 0 var(--hair); }
+  /* 头部（含脸侧阴影、嘴） */
+  .char .head  { position:absolute; top:8px; left:7px; width:18px; height:15px; background:var(--skin); }
+  .char .head::before { content:""; position:absolute; top:0; right:0; width:3px; height:100%; background:var(--skin-shade); }
+  .char .eye-l { position:absolute; top:5px; left:4px; width:3px; height:3px; background:#1a1208; }
+  .char .eye-r { position:absolute; top:5px; right:4px; width:3px; height:3px; background:#1a1208; }
+  .char .eye-l::after, .char .eye-r::after { content:""; position:absolute; top:0; left:0; width:1px; height:1px; background:#f0e8d8; }
+  .char .mouth { position:absolute; bottom:3px; left:7px; width:4px; height:1px; background:#8a5a4a; }
+  /* 衣领（V 字交领） */
+  .char .collar { position:absolute; top:22px; left:9px; width:14px; height:5px; background:var(--skin);
+    clip-path: polygon(0 0, 100% 0, 70% 100%, 50% 55%, 30% 100%); }
+  /* 身体（含衣襟线、右侧暗部、腰带） */
+  .char .body  { position:absolute; top:23px; left:3px; width:26px; height:21px; background:var(--robe);
+    box-shadow: inset -4px 0 0 rgba(0,0,0,.16), inset 0 2px 0 rgba(255,255,255,.07); }
+  .char .body::before { content:""; position:absolute; top:0; left:50%; transform:translateX(-50%); width:2px; height:100%; background:var(--robe-shade); }
+  .char .belt  { position:absolute; bottom:-2px; left:-1px; right:-1px; height:3px; background:var(--pants); }
+  .char .belt::after { content:""; position:absolute; top:0; left:50%; transform:translateX(-50%); width:4px; height:3px; background:#6a5a40; }
+  /* 手臂（含袖口、手） */
+  .char .arm-l { position:absolute; top:24px; left:0; width:6px; height:16px; background:var(--robe); }
+  .char .arm-r { position:absolute; top:24px; right:0; width:6px; height:16px; background:var(--robe); }
+  .char .arm-l::before, .char .arm-r::before { content:""; position:absolute; bottom:2px; left:0; width:6px; height:2px; background:var(--robe-shade); }
+  .char .arm-l::after, .char .arm-r::after { content:""; position:absolute; bottom:-2px; left:0; width:6px; height:4px; background:var(--skin); }
+  /* 腿 */
+  .char .leg-l { position:absolute; top:43px; left:8px; width:7px; height:9px; background:var(--pants); }
+  .char .leg-r { position:absolute; top:43px; right:8px; width:7px; height:9px; background:var(--pants); }
+  /* 鞋 */
+  .char .shoe-l{ position:absolute; bottom:0; left:6px; width:11px; height:4px; background:#15100c; }
+  .char .shoe-r{ position:absolute; bottom:0; right:6px; width:11px; height:4px; background:#15100c; }
+  /* 学者长袍更长 */
+  .char.long-robe .body { height: 28px; top: 19px; }
+  .char.long-robe .leg-l, .char.long-robe .leg-r { top: 46px; height: 5px; }
+  /* 外貌特征 */
+  .char.beard .head::after { content:""; position:absolute; bottom:-1px; left:1px; right:1px; height:6px; background:#2e2620; }
+  /* 通用眼镜（粗方框） */
+  .char.glasses .head::before { content:""; position:absolute; top:4px; left:1px; right:1px; height:6px; border:1.5px solid #1a1208; background:transparent; width:auto; }
+  .char.glasses .eye-l, .char.glasses .eye-r { display:none; }
+  .char.bald .hair { background:var(--skin); height:6px; }
+  .char.bald .hair::before, .char.bald .hair::after { display:none; }
+
+  /* ========== 蔡和森专属重建（赴法勤工俭学形象） ========== */
+  .cai-head .hair { display: none; }
+  /* 法式贝雷帽：宽帽檐 + 向左鼓起的帽顶（阶梯像素轮廓），不旋转保持边缘锐利 */
+  .cai-head .beret {
+    position: absolute; top: -4px; left: -2px; width: 20px; height: 8px;
+    background: #2e3a4a;
+    box-shadow: 0 1px 0 #1a222c;
+    clip-path: polygon(
+      0% 100%, 0% 62%, 5% 62%, 5% 25%,
+      10% 25%, 10% 0%, 60% 0%, 60% 25%,
+      90% 25%, 90% 62%, 100% 62%, 100% 100%
+    );
+  }
+  /* 帽顶小结（贝雷帽标志） */
+  .cai-head .beret::after { content:""; position:absolute; top:0; left:6px; width:2px; height:2px; background:#1a222c; }
+  /* 金丝圆眼镜：左右镜片紧贴双眼，鼻梁居中连接 */
+  .cai-head .glasses {
+    position: absolute; top: 4px; left: 0; width: 18px; height: 7px; pointer-events: none;
+  }
+  .cai-head .glasses::before, .cai-head .glasses::after {
+    content:""; position:absolute; top:0; width:5px; height:6px;
+    border:1.5px solid #c8a858;
+    background: rgba(200,220,255,.18);
+    box-shadow: inset 2px 2px 0 rgba(30,20,10,.75);
+  }
+  .cai-head .glasses::before { left: 1px; }
+  .cai-head .glasses::after { right: 1px; }
+  /* 鼻梁横梁：位于两镜片之间正中 */
+  .cai-head .glasses i { position:absolute; top:2px; left:6px; width:6px; height:1.5px; background:#c8a858; }
+  .cai-head .eye-l, .cai-head .eye-r { display:none; }
+  /* 手中书本（手臂持书） */
+  .cai-book {
+    position: absolute; top: 30px; left: -2px; width: 9px; height: 12px;
+    background: #7a2e2e; border: 1.5px solid #3a1414;
+    box-shadow: inset -2px 0 0 rgba(255,255,255,.15);
+    transform: rotate(6deg);
+  }
+  .cai-book::after { content:""; position:absolute; top:2px; left:2px; width:4px; height:6px; background:#e8d8b0; }
+
+  /* 蔡和森配色：深色学生装（藏青） */
+  .c-cai {
+    --robe:#2e3a52; --robe-shade:#1e2638; --pants:#22201c;
+    --skin:#e0b890; --skin-shade:#c09a72;
+  }
+  /* 藏青学生装的衣领改为白色翻领（法式学生风） */
+  .c-cai .collar { background:#e8e0d0; clip-path: polygon(0 0, 100% 0, 80% 100%, 50% 45%, 20% 100%); }
+
+  /* 配色变体 */
+  .c-blue    { --robe:#4a6d8c; --robe-shade:#35506a; --pants:#2e2620; }
+  .c-darkrobe{ --robe:#3a2e28; --robe-shade:#241c18; --pants:#221a16; --hair:#3a2e26; }
+  .c-grey    { --robe:#6b6458; --robe-shade:#4a443a; --pants:#3a342c; }
+  .c-jacket  { --robe:#4a3830; --robe-shade:#2e201a; --pants:#2a221e; }
+  /* 彭璜：加白色围巾（学生运动标志） */
+  .c-jacket .collar { background:#e8e4da; clip-path: polygon(0 0, 100% 0, 85% 100%, 50% 60%, 15% 100%); }
+  .c-jacket .body::after { content:""; position:absolute; top:2px; left:50%; transform:translateX(-50%); width:10px; height:3px; background:#e8e4da; }
+
+  /* ========== NPC 专属道具 ========== */
+  /* 何叔衡·拐杖 */
+  .cane {
+    position:absolute; bottom:0; right:1px; width:3px; height:34px;
+    background: linear-gradient(to bottom, #6a4a2e 0%, #4a3220 100%);
+    box-shadow: 1px 0 0 rgba(0,0,0,.3);
+  }
+  .cane::before { content:""; position:absolute; top:-3px; left:-2px; width:7px; height:4px; background:#6a4a2e; border-radius:3px 3px 0 0; }
+  /* 毛泽东·手持书卷 */
+  .scroll {
+    position:absolute; top:30px; right:-2px; width:8px; height:11px;
+    background:#e8dcc0; border:1px solid #8a7a5c;
+    box-shadow: inset 2px 0 0 rgba(0,0,0,.1);
+    transform: rotate(-4deg);
+  }
+  .scroll::before { content:""; position:absolute; top:1px; left:1px; right:1px; height:1px; background:#8a7a5c; box-shadow: 0 2px 0 #8a7a5c, 0 4px 0 #8a7a5c, 0 6px 0 #8a7a5c; }
+  /* 彭璜·围巾飘带（随风轻摆） */
+  .scarf-tail {
+    position:absolute; top:26px; left:2px; width:5px; height:14px;
+    background:#e8e4da;
+    clip-path: polygon(20% 0, 100% 0, 80% 100%, 0% 100%);
+    animation: scarfWave 1.8s ease-in-out infinite;
+    transform-origin: top center;
+  }
+  @keyframes scarfWave { 0%,100%{transform:rotate(0)} 50%{transform:rotate(-7deg)} }
+  /* 主角·斜挎书包带 */
+  .satchel {
+    position:absolute; top:23px; left:8px; width:16px; height:22px;
+    background: linear-gradient(115deg, transparent 42%, #5a4632 42%, #5a4632 58%, transparent 58%);
+    pointer-events: none;
+  }
+  .satchel::after { content:""; position:absolute; bottom:-1px; right:-3px; width:8px; height:7px; background:#5a4632; box-shadow: inset -2px -2px 0 rgba(0,0,0,.25); }
+
+  /* 玩家 */
+  #player {
+    position: absolute; width: 32px; height: 56px; bottom: 18%;
+    transition: transform .05s; z-index: 20;
+  }
+  #player.walk .leg-l { animation: stepL .28s steps(2) infinite; }
+  #player.walk .leg-r { animation: stepR .28s steps(2) infinite; }
+  #player.walk { animation: bob .28s steps(2) infinite; }
+  @keyframes stepL { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+  @keyframes stepR { 0%,100%{transform:translateY(-3px)} 50%{transform:translateY(0)} }
+  @keyframes bob   { 0%,100%{margin-top:0} 50%{margin-top:-1px} }
+  /* 跳跃 squash & stretch */
+  #player .sprite-inner { transition: transform .08s ease-out; transform-origin: bottom center; }
+  #player.jumping .sprite-inner { animation: stretch .18s ease-out forwards; }
+  #player.landing .sprite-inner { animation: squash .12s ease-out forwards; }
+  @keyframes stretch { 0%{transform:scaleY(1)} 40%{transform:scaleY(1.22) scaleX(.9)} 100%{transform:scaleY(1.1) scaleX(.95)} }
+  @keyframes squash { 0%{transform:scaleY(1)} 40%{transform:scaleY(.78) scaleX(1.2)} 100%{transform:scaleY(1)} }
+  /* NPC 待机动画 */
+  .npc .sprite { animation: npcIdle 2.4s ease-in-out infinite; }
+  @keyframes npcIdle { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-2px)} }
+  .npc .sprite.cai-book { animation: caiBook 3s ease-in-out infinite; }
+  @keyframes caiBook { 0%,100%{transform:rotate(6deg)} 50%{transform:rotate(3deg) translateY(-1px)} }
+  /* 逐像素点阵精灵（box-shadow 渲染，1px 基准缩放） */
+  .pxsprite {
+    position: absolute; top: 2px; left: 1px;
+    width: 1px; height: 1px;
+    transform: scale(2.1); transform-origin: top left;
+    image-rendering: pixelated;
+  }
+  #player.facing-left { transform: scaleX(-1); }
+
+  /* 交互提示 */
+  #interact-hint {
+    position: absolute; z-index: 30; display: none;
+    padding: 4px 10px; font-size: 12px; letter-spacing: 1px;
+    background: rgba(20,17,14,.85); color: #f0e4cc; border: 1px solid rgba(200,180,140,.5);
+    white-space: nowrap; transform: translateX(-50%);
+  }
+  #interact-hint.show { display: block; }
+  #interact-hint b { color: #f0c060; }
+
+  /* 顶部场景名 */
+  #scene-label {
+    position: absolute; top: 14px; left: 50%; transform: translateX(-50%); z-index: 35;
+    font-size: 12px; letter-spacing: 3px; color: #ddcfae;
+    background: rgba(20,17,14,.55); padding: 5px 14px; border: 1px solid rgba(200,180,140,.3);
+  }
+
+  /* ---------- 对话框 ---------- */
+  #dialogue-box {
+    position: absolute; left: 12px; right: 12px; bottom: 12px; z-index: 40;
+    padding: 14px 16px 18px;
+    background: rgba(16,13,10,.94); border: 2px solid rgba(200,180,140,.45);
+    display: none;
+  }
+  #dialogue-box.show { display: block; }
+  .dialog-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .dialog-head .portrait {
+    width: 48px; height: 48px; object-fit: cover; flex-shrink: 0;
+    border: 2px solid rgba(240,228,200,.6); image-rendering: pixelated;
+  }
+  .dialog-head .speaker { font-size: 15px; font-weight: 700; letter-spacing: 2px; color: #f0e4cc; }
+  #dialog-text {
+    font-size: 15.5px; line-height: 1.85; color: #ede4d0; letter-spacing: .5px;
+    white-space: pre-wrap; min-height: 3em;
+  }
+  #dialog-next {
+    text-align: right; font-size: 11px; color: #b3a688; margin-top: 5px;
+    opacity: 0; animation: blink 1.4s infinite;
+  }
+  #dialog-next.show { opacity: 1; }
+  @keyframes blink { 0%,100%{opacity:.3} 50%{opacity:1} }
+  #choices { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .choice-btn {
+    text-align: left; font-family: inherit; font-size: 14px; line-height: 1.5;
+    color: #f0e6d0; background: rgba(32,26,19,.85); border: 1px solid rgba(200,180,140,.4);
+    padding: 10px 12px; cursor: pointer; letter-spacing: .5px;
+    opacity: 0; transform: translateY(6px); animation: rise .3s forwards;
+  }
+  .choice-btn:active { background: rgba(140,43,43,.7); }
+  .choice-btn::before { content: "▍"; color: #c25656; margin-right: 6px; }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  /* 移动端虚拟按键 */
+  #touch-controls {
+    position: absolute; inset: 0; z-index: 30; pointer-events: none; display: none;
+  }
+  #touch-controls.show { display: block; }
+  .tc {
+    position: absolute; pointer-events: auto; display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: rgba(240,228,200,.85);
+    background: rgba(20,17,14,.4); border: 1.5px solid rgba(200,180,140,.4);
+  }
+  .tc-left { left: 14px; bottom: 22px; width: 62px; height: 62px; border-radius: 50%; }
+  .tc-right { left: 88px; bottom: 22px; width: 62px; height: 62px; border-radius: 50%; }
+  .tc-jump { right: 88px; bottom: 22px; width: 62px; height: 62px; border-radius: 50%; }
+  .tc-act { right: 14px; bottom: 20px; width: 66px; height: 66px; border-radius: 50%; font-size: 14px; }
+  .tc:active, .tc.pressed { background: rgba(140,43,43,.55); transform: scale(.9); }
+  .tc { transition: transform .06s, background .06s; touch-action: none; user-select: none; -webkit-user-select: none; }
+  /* 竖屏旋转提示 */
+  #rotate-hint {
+    position: absolute; inset: 0; z-index: 60; display: none;
+    background: rgba(20,17,14,.92); color: #f0e4cc;
+    align-items: center; justify-content: center; text-align: center;
+    font-size: 15px; letter-spacing: 3px; line-height: 2.2; padding: 0 30px;
+  }
+  #rotate-hint .rot-icon { font-size: 34px; display: block; margin-bottom: 12px; animation: rotPulse 1.6s ease-in-out infinite; }
+  @keyframes rotPulse { 0%,100%{transform:rotate(0)} 50%{transform:rotate(90deg)} }
+  @media (orientation: portrait) and (max-width: 600px) {
+    #game-screen #rotate-hint.show { display: flex; }
+  }
+  /* 史料弹窗（收集提示） */
+  #history-toast {
+    position: absolute; top: 52px; left: 50%; transform: translateX(-50%);
+    max-width: 86%; z-index: 40; padding: 8px 14px;
+    background: rgba(24,20,16,.88); border: 1px solid rgba(220,190,120,.5);
+    color: #f0dcA8; font-size: 12px; letter-spacing: 1px; line-height: 1.6; text-align: center;
+    opacity: 0; pointer-events: none; transition: opacity .35s, transform .35s;
+  }
+  #history-toast.show { opacity: 1; transform: translateX(-50%) translateY(4px); }
+  /* 视差中景层（远景建筑/树影剪影） */
+  #mid-layer {
+    position: absolute; top: 0; left: 0; height: 82%; pointer-events: none;
+    background-repeat: repeat-x; background-position: bottom left;
+    opacity: .8; transform-origin: left bottom;
+  }
+
+  /* ---------- 结尾页 ---------- */
+  #ending-screen {
+    background: #1c1814; color: #e6dcc6; padding: 36px 24px 30px; overflow-y: auto;
+  }
+  #ending-screen h2 { font-size: 24px; letter-spacing: 5px; text-align: center; color: #efe4c8; margin-bottom: 14px; }
+  #ending-text { font-size: 15px; line-height: 2; color: #c9bda2; text-align: center; white-space: pre-wrap; margin-bottom: 24px; }
+  .block { border-top: 1px solid rgba(200,180,140,.2); padding-top: 18px; margin-bottom: 22px; }
+  .block h3 { font-size: 14px; letter-spacing: 3px; color: #a08b68; margin-bottom: 14px; font-weight: 600; }
+  #path-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .path-chip {
+    font-size: 13px; padding: 5px 14px; border: 1px solid rgba(200,180,140,.4);
+    color: #ddcfae;
+  }
+  .figure-card { background: rgba(239,230,211,.06); border: 1px solid rgba(200,180,140,.25); padding: 16px; display: flex; gap: 14px; }
+  .fc-img-wrap {
+    flex-shrink: 0; width: 84px; height: 84px; overflow: hidden;
+    border: 1px solid rgba(200,180,140,.35); background: #262019;
+  }
+  .fc-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; image-rendering: pixelated; }
+  .fc-body { flex: 1; min-width: 0; }
+  .fc-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; flex-wrap: wrap; }
+  #fc-name { font-size: 21px; font-weight: 700; letter-spacing: 3px; color: #efe4c8; }
+  #fc-years { font-size: 12.5px; color: #8f8268; }
+  #fc-desc { font-size: 13.5px; line-height: 1.85; color: #c9bda2; }
+  #fc-quote {
+    display: none; margin-top: 10px; padding: 9px 13px; border-left: 3px solid #a44;
+    font-size: 13px; line-height: 1.8; color: #b8ab8d;
+  }
+  .impact-text {
+    font-size: 14px; line-height: 2; color: #d4c8ab;
+    padding: 14px 16px; background: rgba(239,230,211,.05);
+    border-left: 3px solid #c25656;
+  }
+  .stat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .stat-label { width: 150px; flex-shrink: 0; font-size: 12.5px; color: #c9bda2; line-height: 1.4; }
+  .stat-track { flex: 1; height: 16px; background: rgba(255,255,255,.07); }
+  .stat-fill { height: 100%; background: linear-gradient(to right, #8c2b2b, #b04545); width: 0; transition: width .8s; }
+  .stat-pct { width: 38px; text-align: right; font-size: 12.5px; color: #ddcfae; }
+  #restart-btn {
+    margin: 8px auto 0; display: block; border: 1.5px solid #a44; color: #d8c9a8;
+    background: transparent; font-family: inherit; font-size: 15px; letter-spacing: 4px;
+    padding: 11px 40px; cursor: pointer;
+  }
+  #restart-btn:active { background: rgba(140,43,43,.55); }
+  .img-note { text-align: center; font-size: 11px; color: #6f6651; margin-top: 4px; letter-spacing: 1px; }
+  /* 收集品图鉴 */
+  #gallery { display: flex; flex-wrap: wrap; gap: 8px; max-width: 480px; margin: 0 auto; }
+  .gal-item {
+    width: 64px; padding: 6px 4px; text-align: center;
+    background: rgba(30,26,22,.6); border: 1px solid rgba(200,180,140,.25);
+    opacity: .25; transition: opacity .3s;
+  }
+  .gal-item.found { opacity: 1; }
+  .gal-icon { font-size: 18px; line-height: 1; margin-bottom: 3px; }
+  .gal-name { font-size: 10px; color: #c8b896; letter-spacing: 1px; line-height: 1.3; }
+  .gal-item.found .gal-name { color: #f0d890; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <section id="title-screen" class="active">
+    <div id="title-bg"></div>
+    <div id="title-content">
+      <div class="years">1918 — 1921</div>
+      <h1>五四风雷<br>在湖南</h1>
+      <div class="sub">一群青年如何寻找救国道路</div>
+      <div class="ctrl-hint">← → 移动 &nbsp; 空格 跳跃 &nbsp; E 对话<br>（移动端使用屏幕按键）</div>
+      <div id="load-wrap">
+        <div id="load-bar"><div id="load-fill"></div></div>
+        <div id="load-text">史料加载中 … 0%</div>
+      </div>
+      <button id="start-btn" style="display:none">开 始</button>
+      <button id="continue-btn" style="display:none">继续旅程</button>
+    </div>
+  </section>
+
+  <div id="scene-overlay">
+    <div class="num" id="overlay-num"></div>
+    <div class="name" id="overlay-name"></div>
+    <div class="place" id="overlay-place"></div>
+  </div>
+  <div id="transition-overlay"></div>
+
+  <section id="game-screen">
+    <div id="scene-bg"></div>
+    <div id="mid-layer"></div>
+    <div id="world">
+      <div id="ground"></div>
+      <div id="npcs"></div>
+      <div id="player" class="char c-blue">
+        <div class="shadow"></div>
+        <div class="sprite-inner">
+          <div class="hair"></div>
+          <div class="head"><div class="eye-l"></div><div class="eye-r"></div><div class="mouth"></div></div>
+          <div class="collar"></div>
+          <div class="body"><div class="belt"></div></div>
+          <div class="arm arm-l"></div>
+          <div class="arm arm-r"></div>
+          <div class="leg leg-l"></div>
+          <div class="leg leg-r"></div>
+          <div class="shoe shoe-l"></div>
+          <div class="shoe shoe-r"></div>
+          <div class="satchel"></div>
+        </div>
+      </div>
+    </div>
+    <div id="scene-label"></div>
+    <div id="history-toast"></div>
+    <div id="rotate-hint"><div><span class="rot-icon">📱</span>建议横屏体验<br>旋转设备获得完整视野</div></div>
+    <div id="item-count">📜 <span id="item-num">0</span> / <span id="item-total">0</span></div>
+    <button id="sound-btn" onclick="toggleSound()">🔊</button>
+    <div id="interact-hint">按 <b>E</b> 对话</div>
+
+    <div id="touch-controls">
+      <div class="tc tc-left" data-key="left">◀</div>
+      <div class="tc tc-right" data-key="right">▶</div>
+      <div class="tc tc-jump" data-key="jump">↑</div>
+      <div class="tc tc-act" data-key="act">E 对话</div>
+    </div>
+
+    <div id="dialogue-box">
+      <div class="dialog-head">
+        <img class="portrait" id="dlg-portrait" alt="">
+        <div class="speaker" id="dlg-speaker"></div>
+      </div>
+      <div id="dialog-text"></div>
+      <div id="dialog-next">点击继续 ▾</div>
+      <div id="choices"></div>
+    </div>
+  </section>
+
+  <section id="ending-screen">
+    <h2 id="ending-title"></h2>
+    <p id="ending-text"></p>
+    <div class="block">
+      <h3>你走过的路</h3>
+      <div id="path-list"></div>
+    </div>
+    <div class="block">
+      <h3>你的道路与 TA 相似</h3>
+      <div class="figure-card">
+        <div class="fc-img-wrap"><img id="fc-img" alt=""></div>
+        <div class="fc-body">
+          <div class="fc-head"><span id="fc-name"></span><span id="fc-years"></span></div>
+          <p id="fc-desc"></p>
+          <blockquote id="fc-quote"></blockquote>
+        </div>
+      </div>
+      <p class="img-note">配图为 AI 生成的像素意象图，非真实历史照片</p>
+    </div>
+    <div class="block">
+      <h3>这条道路，改变了什么</h3>
+      <p id="fc-impact" class="impact-text"></p>
+    </div>
+    <div class="block">
+      <h3>沿途收集的史料</h3>
+      <div id="gallery"></div>
+    </div>
+    <div class="block">
+      <h3>问卷 Q8 · 班级选择分布（示例数据）</h3>
+      <div id="stats"></div>
+    </div>
+    <button id="restart-btn">再走一遍</button>
+  </section>
+
+</div>
+
+<script>
+/* ============ 图片资源：16-bit 像素风 ============ */
+/* 图片已全部本地化到 img/ 目录，部署时无需外部网络 */
+const IMG_KEYS = [
+  "cover","courtyard","dock","campus","press","street","fireside","france",
+  "npc_he","npc_cai","npc_peng","npc_mao","fig_cai","fig_he","fig_mao","fig_peng"
+];
+function imgUrl(key) {
+  return "img/" + key + ".jpg";
+}
+const imgCache = {};
+function preload(key, ok, fail) {
+  if (imgCache[key] === true) return ok && ok();
+  const im = new Image();
+  im.onload = () => { imgCache[key] = true; ok && ok(); };
+  im.onerror = () => { imgCache[key] = false; fail && fail(); };
+  im.src = imgUrl(key);
+}
+function setBg(layer, key) {
+  preload(key, () => { layer.style.backgroundImage = 'url("' + imgUrl(key) + '")'; });
+}
+
+/* ============ 剧本 ============
+ * 每个场景有一个 NPC，玩家走到 NPC 旁按 E 对话，选项决定 tag 并推进下一场景。
+ */
+const SCRIPT = {
+  "start": {
+    overlay: { num: "序", name: "1918 · 长沙", place: "岳麓山下 · 新民学会成立" },
+    img: "courtyard",
+    npc: { key: "he", name: "何叔衡", portrait: "npc_he", pos: 70,
+      lines: [
+        "老夫痴长诸位十数载，今日也来凑个热闹。",
+        "十三个人，一份宗旨：革新学术，砥砺品行，改良人心风俗。",
+        "天下汹汹，坐而论道易，起而行之难——今后，你打算往何处走？"
+      ],
+      choices: [
+        { text: "走求学的路——先去看看外面的世界", tag: "求学", next: "ch1_cai" },
+        { text: "走结社的路——和同志们一起找出路", tag: "结社", next: "ch1_peng" }
+      ]}
+  },
+  "ch1_cai": {
+    overlay: { num: "求学 · 一", name: "长沙码头", place: "1919 · 赴法勤工俭学" },
+    img: "dock",
+    npc: { key: "cai", name: "蔡和森", portrait: "npc_cai", pos: 72,
+      lines: [
+        "勤工俭学的船下月就开。我已去过北京接洽，湖南可以去一大批人。",
+        "润之兄去了北大图书馆，后来却把船票让给了别人——他说要先把中国的问题弄明白。",
+        "你呢？走，还是留？"
+      ],
+      choices: [
+        { text: "去法国，万里之外寻找真理", tag: "求学", next: "ch2_france" },
+        { text: "留在国内，先把中国的问题弄明白", tag: "结社", next: "ch2_mao" }
+      ]}
+  },
+  "ch2_france": {
+    overlay: { num: "求学 · 二", name: "法国蒙达尔纪", place: "1920 · 勤工俭学" },
+    img: "courtyard",
+    npc: { key: "cai", name: "蔡和森", portrait: "npc_cai", pos: 70,
+      lines: [
+        "到了法国，我白天做工，晚上猛看猛译，把马克思的书一本本啃下来。",
+        "我给润之兄写信，明确提出：明目张胆正式成立一个中国共产党。",
+        "你说，我们是立即动手建党，还是再看看？"
+      ],
+      choices: [
+        { text: "时机已到，立即着手建党", tag: "行动", next: "ch4" },
+        { text: "理论还需吃透，先观察一段", tag: "求学", next: "ch4" }
+      ]}
+  },
+  "ch2_mao": {
+    overlay: { num: "求学 · 二", name: "北京 · 北大图书馆", place: "1919 · 助理员" },
+    img: "press",
+    npc: { key: "mao", name: "毛泽东", portrait: "npc_mao", pos: 68,
+      lines: [
+        "我在北大图书馆当助理员，月薪八块大洋，却读到了《共产党宣言》。",
+        "可北京不是久留之地，湖南的事更急——张敬尧在那里祸湘。",
+        "你说，我是留京继续读书，还是回湖南干实事？"
+      ],
+      choices: [
+        { text: "回湖南，把学到的用起来", tag: "结社", next: "ch3_press" },
+        { text: "留在北京，把理论读透再说", tag: "求学", next: "ch4" }
+      ]}
+  },
+  "ch1_peng": {
+    overlay: { num: "结社 · 一", name: "湖南第一师范", place: "1919 · 学联成立" },
+    img: "campus",
+    npc: { key: "peng", name: "彭璜", portrait: "npc_peng", pos: 70,
+      lines: [
+        "北京学生上街的消息传来，长沙炸了锅。",
+        "湖南学生联合会刚成立，我被推为会长。罢课、演讲、查禁日货，张敬尧的人盯着我们。",
+        "会里要人——你做哪一样？"
+      ],
+      choices: [
+        { text: "组织各校同学，拧成一股绳", tag: "结社", next: "ch2_strike" },
+        { text: "办《湘江评论》，把道理写出去", tag: "传播", next: "ch2_press" }
+      ]}
+  },
+  "ch2_strike": {
+    overlay: { num: "结社 · 二", name: "长沙街头", place: "1919 · 罢课游行" },
+    img: "street",
+    npc: { key: "peng", name: "彭璜", portrait: "npc_peng", pos: 72,
+      lines: [
+        "罢课一个月了，长沙的学生都站了出来，可张敬尧的军警越来越凶。",
+        "有人说继续组织同学硬扛，有人说这样下去不是办法，得换条路。",
+        "你说，下一步怎么走？"
+      ],
+      choices: [
+        { text: "继续组织同学，把声势做大", tag: "结社", next: "ch4" },
+        { text: "转向办报，用文字唤醒更多人", tag: "传播", next: "ch3_press" }
+      ]}
+  },
+  "ch2_press": {
+    overlay: { num: "传播 · 一", name: "报馆", place: "1919 · 《湘江评论》创刊" },
+    img: "press",
+    npc: { key: "mao", name: "毛泽东", portrait: "npc_mao", pos: 68,
+      lines: [
+        "《湘江评论》创刊号一出，两千份当天抢空。",
+        "我在创刊宣言里写：天下者我们的天下，我们不说谁说，我们不干谁干。",
+        "可笔杆子之外，还需要有人上街——你留在这里写，还是出去发动？"
+      ],
+      choices: [
+        { text: "接办报纸，把阵地守住", tag: "传播", next: "ch3_press" },
+        { text: "走上街头，直接发动群众", tag: "行动", next: "ch4" }
+      ]}
+  },
+  "ch3_press": {
+    overlay: { num: "传播 · 二", name: "报馆", place: "1919 · 《湘江评论》被封" },
+    img: "press",
+    npc: { key: "mao", name: "毛泽东", portrait: "npc_mao", pos: 68,
+      lines: [
+        "出到第五期，张敬尧下令查封了《湘江评论》。",
+        "《新湖南》周报也被盯上了。笔被掐住，你说怎么办？"
+      ],
+      choices: [
+        { text: "换个阵地，秘密继续办刊", tag: "传播", next: "ch4" },
+        { text: "放下笔，投入驱张运动", tag: "行动", next: "ch4" }
+      ]}
+  },
+  "ch4": {
+    overlay: { num: "行动", name: "长沙街头", place: "1920 · 驱张请愿" },
+    img: "street",
+    npc: { key: "peng2", name: "彭璜", portrait: "npc_peng", pos: 72,
+      lines: [
+        "焚毁日货大会被军警镇压，湖南人都明白了：不驱张，无宁日。",
+        "代表团分赴北京、上海请愿。我去上海，润之兄北上。",
+        "你随哪一路？"
+      ],
+      choices: [
+        { text: "北上京城，到总统府门前请愿", tag: "行动", next: "ch5" },
+        { text: "留守长沙，编发电文、全城声援", tag: "传播", next: "ch5" }
+      ]}
+  },
+  "ch5": {
+    overlay: { num: "尾 声", name: "抉 择", place: "文化书社 · 新年围炉" },
+    img: "fireside",
+    npc: { key: "he2", name: "何叔衡", portrait: "npc_he", pos: 70,
+      lines: [
+        "1921 年元旦，大雪。我们围炉争论了三天。",
+        "有人说从教育实业入手慢慢改良；有人说学俄国，来一次彻底的改造。",
+        "我老头子先说：我赞成激烈的方法。你呢？"
+      ],
+      choices: [
+        { text: "赞成激烈的根本改造", tag: "行动", next: "ending" },
+        { text: "赞成从教育、实业渐进改良", tag: "求学", next: "ending" }
+      ]}
+  },
+  "ending": {
+    ending: {
+      title: "路，是人走出来的",
+      text: "求学、结社、传播、行动——当年的湖南青年没有标准答案。\n你走的每一步，都通向了不同的风景。"
+    }
+  }
+};
+
+/* ============ 结尾人物匹配 ============ */
+const FIGURES = {
+  "求学": { name: "蔡和森", years: "1895 — 1931", img: "fig_cai",
+    desc: "赴法勤工俭学，在法国猛看猛译马克思主义著作，第一个系统提出建立「中国共产党」。",
+    quote: "「社会主义真为改造现世界对症之方，中国也不能外此。」——1920 年致毛泽东信",
+    impact: "他第一个明确提出「明目张胆正式成立一个中国共产党」，为建党奠定了理论与组织基础。翻译的马克思主义著作影响了一代革命者。1931 年在广州英勇就义，年仅 36 岁。" },
+  "结社": { name: "何叔衡", years: "1876 — 1935", img: "fig_he",
+    desc: "新民学会中最年长者，新年大会上第一个主张走激烈的革命道路，后作为代表出席中共一大。",
+    quote: "",
+    impact: "新民学会发起者与核心骨干，1921 年作为湖南代表出席中共一大，是中国共产党最早的党员之一。1935 年在福建长汀突围中壮烈牺牲，用生命践行了自己的选择。" },
+  "传播": { name: "毛泽东", years: "1893 — 1976", img: "fig_mao",
+    desc: "留在国内先弄清中国的问题，主编《湘江评论》，主张「民众大联合」，最终走上马克思主义道路。",
+    quote: "「天下者，我们的天下；国家者，我们的国家；社会者，我们的社会。我们不说，谁说？我们不干，谁干？」",
+    impact: "《湘江评论》影响了整整一代湖南青年，「民众大联合」的思想为后来的革命道路埋下种子。他最终领导中国人民建立了新中国，深刻改变了中国和世界的历史进程。" },
+  "行动": { name: "彭璜", years: "1896 — 1921", img: "fig_peng",
+    desc: "湖南学生联合会会长，驱张运动赴沪代表，主编《天问》周刊，是学生爱国行动的先锋。",
+    quote: "",
+    impact: "领导罢课、抵制日货、驱张等一系列爱国运动，主编《天问》周刊宣传革命。1921 年因积劳成疾英年早逝，年仅 25 岁，是湖南学生爱国运动的先锋。" }
+};
+
+const CONFIG = {
+  stats: [
+    { label: "求学：外出读书，寻找真理", pct: 18 },
+    { label: "结社：组织同学，凝聚力量", pct: 22 },
+    { label: "传播：办报写文，唤醒民众", pct: 34 },
+    { label: "行动：上街请愿，直接斗争", pct: 26 }
+  ]
+};
+
+/* ============ 引擎 ============ */
+const $ = id => document.getElementById(id);
+let pathTags = [], currentScene = null;
+let dlgTimer = null, dlgTyping = false, dlgDone = false, dlgLines = [], dlgIdx = 0;
+
+const TITLE = $("title-screen"), GAME = $("game-screen"), ENDSCR = $("ending-screen");
+function showOnly(el) { [TITLE, GAME, ENDSCR].forEach(s => s.classList.remove("active")); el.classList.add("active"); }
+
+setBg($("title-bg"), "cover");
+/* 带进度的全量预加载 */
+(function preloadAll() {
+  const total = IMG_KEYS.length;
+  let done = 0;
+  const fill = $("load-fill"), text = $("load-text"), wrap = $("load-wrap"), btn = $("start-btn");
+  function tick() {
+    done++;
+    const pct = Math.round(done / total * 100);
+    fill.style.width = pct + "%";
+    text.textContent = "史料加载中 … " + pct + "%";
+    if (done >= total) {
+      text.textContent = "加载完成";
+      setTimeout(() => {
+        wrap.style.display = "none"; btn.style.display = "inline-block";
+        // 有存档时显示「继续旅程」
+        const sv = loadProgress();
+        if (sv && sv.scene && sv.scene !== "start") $("continue-btn").style.display = "block";
+      }, 350);
+    }
+  }
+  IMG_KEYS.forEach(k => preload(k, tick, tick));
+})();
+
+$("start-btn").onclick = () => { clearProgress(); pathTags = []; initAudio(); showOnly(GAME); startGame(); };
+$("continue-btn").onclick = () => {
+  const sv = loadProgress();
+  pathTags = (sv && sv.pathTags) || [];
+  initAudio(); showOnly(GAME);
+  startGame(sv ? sv.scene : "start", sv);
+};
+$("restart-btn").onclick = () => { clearProgress(); showOnly(TITLE); };
+
+/* ============ 音频系统（Web Audio 程序化合成） ============ */
+let audioCtx = null, bgmNodes = null, soundOn = true;
+function initAudio() {
+  if (audioCtx) { if (audioCtx.state === "suspended") audioCtx.resume(); return; }
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch (e) { return; }
+}
+function tone(freq, dur, type, vol, when, slideTo) {
+  if (!audioCtx || !soundOn) return;
+  const t = audioCtx.currentTime + (when || 0);
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type || "square";
+  o.frequency.setValueAtTime(freq, t);
+  if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(vol || 0.06, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(t); o.stop(t + dur + 0.05);
+}
+/* 音效 */
+const SFX = {
+  jump()    { tone(300, 0.18, "square", 0.05, 0, 620); },
+  land()    { tone(160, 0.1, "triangle", 0.06, 0, 90); },
+  collect() { tone(660, 0.08, "square", 0.05); tone(880, 0.12, "square", 0.05, 0.08); tone(1320, 0.16, "square", 0.04, 0.16); },
+  talk()    { tone(440, 0.06, "sine", 0.04); tone(520, 0.08, "sine", 0.04, 0.05); },
+  blip()    { tone(760, 0.05, "square", 0.035); },
+  confirm() { tone(523, 0.1, "square", 0.05); tone(784, 0.18, "square", 0.05, 0.09); }
+};
+/* 简易 BGM：循环播放的中国风五声音阶琶音 */
+let bgmTimer = null;
+const SCALE = [262, 294, 330, 392, 440, 523, 587, 659]; // C 宫五声
+function startBgm() {
+  if (!audioCtx || bgmTimer) return;
+  let step = 0;
+  bgmTimer = setInterval(() => {
+    if (!soundOn) return;
+    const seq = [0, 2, 4, 7, 4, 2, 0, 4, 5, 7, 4, 2, 1, 2, 4, 0];
+    const n = SCALE[seq[step % seq.length]];
+    tone(n, 0.5, "triangle", 0.028);
+    if (step % 4 === 0) tone(n / 2, 0.9, "sine", 0.02); // 低音铺底
+    step++;
+  }, 300);
+}
+function toggleSound() {
+  soundOn = !soundOn;
+  $("sound-btn").textContent = soundOn ? "🔊" : "🔇";
+}
+
+/* ---------- 横版动作 ---------- */
+const WORLD = $("world"), BG = $("scene-bg"), PLAYER = $("player"), NPCBOX = $("npcs");
+const GROUND_H = 0.18; // 地面占屏幕比例
+const PLAYER_W = 32, PLAYER_H = 56;
+let worldW = 0, screenW = 0, screenH = 0;
+let px = 50, py = 0, vx = 0, vy = 0, onGround = false, facing = 1;
+let npcEl = null, npcX = 0;
+let keys = { left: false, right: false, jump: false, jumpHeld: false, act: false };
+let inDialogue = false, rafId = null;
+let obstacles = [], items = [], itemsCollected = 0, itemsTotal = 0;
+let coyoteTimer = 0, jumpBufferTimer = 0;
+
+function startGame(startScene, sv) {
+  screenW = GAME.clientWidth;
+  screenH = GAME.clientHeight;
+  worldW = screenW * 1.6;
+  WORLD.style.width = worldW + "px";
+  // 统计全游戏收集品总数
+  gameTotalItems = Object.values(LEVEL).reduce((s, l) => s + l.items.length, 0);
+  itemsCollected = (sv && sv.itemsCollected) || 0;
+  $("item-total").textContent = gameTotalItems;
+  $("item-num").textContent = itemsCollected;
+  GALLERY.forEach((g, i) => g.found = !!(sv && sv.gallery && sv.gallery[i]));
+  startBgm();
+  showScene(startScene || "start");
+  if (!rafId) loop();
+}
+
+/* NPC 角色外观映射（key → CSS 类） */
+const NPC_CHAR = {
+  he:   "char c-darkrobe long-robe beard bald",
+  he2:  "char c-darkrobe long-robe beard bald",
+  cai:  "char c-cai",
+  peng: "char c-jacket",
+  peng2:"char c-jacket",
+  mao:  "char c-grey long-robe"
+};
+const CHAR_HTML =
+  '<div class="hair"></div>' +
+  '<div class="head"><div class="eye-l"></div><div class="eye-r"></div><div class="mouth"></div></div>' +
+  '<div class="collar"></div>' +
+  '<div class="body"><div class="belt"></div></div>' +
+  '<div class="arm arm-l"></div><div class="arm arm-r"></div>' +
+  '<div class="leg leg-l"></div><div class="leg leg-r"></div>' +
+  '<div class="shoe shoe-l"></div><div class="shoe shoe-r"></div>';
+
+/* 蔡和森专属建模：贝雷帽 + 金丝圆镜 + 白色翻领学生装 + 手持书本（CSS 零件版） */
+const CHAR_CAI_HTML =
+  '<div class="head cai-head">' +
+    '<div class="beret"></div>' +
+    '<div class="glasses"><i></i></div>' +
+    '<div class="eye-l"></div><div class="eye-r"></div><div class="mouth"></div>' +
+  '</div>' +
+  '<div class="collar"></div>' +
+  '<div class="body"><div class="belt"></div></div>' +
+  '<div class="arm arm-l"></div><div class="arm arm-r"></div>' +
+  '<div class="cai-book"></div>' +
+  '<div class="leg leg-l"></div><div class="leg leg-r"></div>' +
+  '<div class="shoe shoe-l"></div><div class="shoe shoe-r"></div>';
+
+/* NPC 专属道具：何叔衡拐杖 / 彭璜围巾飘带 / 毛泽东书卷 */
+const NPC_PROPS = {
+  he:   '<div class="cane"></div>',
+  he2:  '<div class="cane"></div>',
+  peng: '<div class="scarf-tail"></div>',
+  peng2:'<div class="scarf-tail"></div>',
+  mao:  '<div class="scroll"></div>'
+};
+
+function charHtmlFor(key) {
+  const base = key === "cai" ? CHAR_CAI_HTML : CHAR_HTML;
+  return base + (NPC_PROPS[key] || "");
+}
+
+/* 关卡数据：每场景独立设计
+   障碍 type: crate木箱 / barrel桶 / barricade拒马 / shelf书架 / deck船台
+   npcOnTop: NPC 站在该障碍顶部（登船关）
+   item: y 为离地高度(px)，type: flyer传单 / book书 / paper稿纸 / letter信件 */
+const LEVEL = {
+  /* 序·岳麓山：教学关——矮箱上台 + 高箱，教「站上去」机制 */
+  start: {
+    obstacles: [
+      { x:30, w:38, h:28, type:"crate" },
+      { x:44, w:38, h:50, type:"crate" }
+    ],
+    items: [
+      { x:32, y:52, type:"flyer" },
+      { x:47, y:78, type:"paper" }
+    ]
+  },
+  /* 求学·码头：登船阶梯——跳上两级木箱，再登上船台与蔡和森对话 */
+  ch1_cai: {
+    obstacles: [
+      { x:26, w:34, h:32, type:"crate" },
+      { x:37, w:34, h:52, type:"crate" },
+      { x:60, w:28, h:110, type:"deck", npcOnTop:true }
+    ],
+    items: [
+      { x:29, y:56, type:"flyer" },
+      { x:40, y:78, type:"flyer" },
+      { x:70, y:132, type:"letter" }
+    ]
+  },
+  /* 法国·蒙达尔纪：石桶连跳——第二桶更高，弧形三本书（猛看猛译） */
+  ch2_france: {
+    obstacles: [
+      { x:28, w:34, h:36, type:"barrel" },
+      { x:48, w:34, h:56, type:"barrel" }
+    ],
+    items: [
+      { x:38, y:92, type:"book" },
+      { x:50, y:112, type:"book" },
+      { x:62, y:92, type:"book" }
+    ]
+  },
+  /* 留京·北大图书馆：高书架（80px），第二架顶上有书需站上去拿 */
+  ch2_mao: {
+    obstacles: [
+      { x:32, w:26, h:80, type:"shelf" },
+      { x:52, w:26, h:80, type:"shelf" }
+    ],
+    items: [
+      { x:32, y:92, type:"book" },
+      { x:53, y:96, type:"book" }
+    ]
+  },
+  /* 结社·一师校园：双布告栏节奏跳 */
+  ch1_peng: {
+    obstacles: [
+      { x:30, w:56, h:30, type:"barricade" },
+      { x:52, w:56, h:34, type:"barricade" }
+    ],
+    items: [
+      { x:38, y:56, type:"flyer" },
+      { x:58, y:62, type:"flyer" }
+    ]
+  },
+  /* 罢课·游行：四连拒马节奏跳，沿途散发传单 */
+  ch2_strike: {
+    obstacles: [
+      { x:20, w:36, h:30, type:"barricade" },
+      { x:31, w:36, h:30, type:"barricade" },
+      { x:42, w:36, h:30, type:"barricade" },
+      { x:53, w:36, h:30, type:"barricade" }
+    ],
+    items: [
+      { x:26, y:58, type:"flyer" },
+      { x:37, y:58, type:"flyer" },
+      { x:48, y:58, type:"flyer" }
+    ]
+  },
+  /* 办报·湘江评论创刊：墨桶错位双跳 + 收稿纸 */
+  ch2_press: {
+    obstacles: [
+      { x:30, w:34, h:40, type:"barrel" },
+      { x:48, w:34, h:56, type:"barrel" }
+    ],
+    items: [
+      { x:30, y:66, type:"paper" },
+      { x:56, y:84, type:"paper" }
+    ]
+  },
+  /* 报馆：木箱阶梯 + 高墨桶（箱顶→桶顶连跳） */
+  ch3_press: {
+    obstacles: [
+      { x:30, w:38, h:40, type:"crate" },
+      { x:42, w:38, h:62, type:"crate" },
+      { x:58, w:30, h:80, type:"barrel" }
+    ],
+    items: [
+      { x:43, y:88, type:"paper" },
+      { x:60, y:108, type:"paper" }
+    ]
+  },
+  /* 驱张·请愿：人潮长廊——木箱、拒马、墨桶混合四连，全程最难 */
+  ch4: {
+    obstacles: [
+      { x:18, w:38, h:46, type:"crate" },
+      { x:34, w:46, h:30, type:"barricade" },
+      { x:50, w:34, h:56, type:"barrel" },
+      { x:64, w:40, h:36, type:"barricade" }
+    ],
+    items: [
+      { x:24, y:72, type:"flyer" },
+      { x:52, y:84, type:"flyer" },
+      { x:68, y:64, type:"flyer" }
+    ]
+  },
+  /* 围炉·抉择：平静收尾，无障碍 */
+  ch5: { obstacles: [], items: [] }
+};
+let gameTotalItems = 0;
+
+function showScene(id) {
+  const s = SCRIPT[id];
+  if (s.ending) return showEnding(s.ending);
+  s.id = id;
+  playTransition(s.overlay, () => {
+    currentScene = s;
+    setBg(BG, s.img);
+    $("scene-label").textContent = (s.overlay ? s.overlay.name + " · " : "") + (s.overlay ? s.overlay.place : "");
+    $("dialogue-box").classList.remove("show");
+    $("choices").innerHTML = "";
+    inDialogue = false;
+    renderScene(s);
+    saveProgress();
+  });
+}
+
+/* 像素网格转场：黑块覆盖 → 显示章节卡 → 切换场景 → 黑块揭开 */
+function playTransition(overlay, done) {
+  const tx = $("transition-overlay");
+  tx.innerHTML = "";
+  const cols = 18, rows = 12;
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const b = document.createElement("div");
+      b.className = "px-block";
+      b.style.left = (x * 100 / cols) + "%";
+      b.style.top = (y * 100 / rows) + "%";
+      b.style.width = (100 / cols) + "%";
+      b.style.height = (100 / rows) + "%";
+      b.style.animationDelay = (Math.random() * 0.3) + "s";
+      tx.appendChild(b);
+    }
+  }
+  tx.classList.add("fill");
+  // 黑块铺满后显示章节卡
+  setTimeout(() => {
+    if (overlay) {
+      $("overlay-num").textContent = overlay.num || "";
+      $("overlay-name").textContent = overlay.name || "";
+      $("overlay-place").textContent = overlay.place || "";
+      $("scene-overlay").classList.add("show");
+    }
+  }, 360);
+  // 切换场景 + 揭开黑块
+  setTimeout(() => {
+    done();
+    $("scene-overlay").classList.remove("show");
+    tx.classList.remove("fill");
+    tx.classList.add("clear");
+    setTimeout(() => { tx.classList.remove("clear"); tx.innerHTML = ""; }, 420);
+  }, 1100);
+}
+
+function renderScene(s) {
+  NPCBOX.innerHTML = "";
+  // 视差层宽度补偿：远/中景移动慢于世界，需加宽避免露边
+  const maxCam = worldW - screenW;
+  BG.style.width = (screenW + maxCam * 0.35 + 2) + "px";
+  const mid = $("mid-layer");
+  mid.style.width = (screenW + maxCam * 0.65 + 2) + "px";
+  // 中景剪影：远树/屋檐轮廓（CSS 径向渐变像素块）
+  mid.style.backgroundImage =
+    "radial-gradient(circle at 60px 100%, rgba(30,24,18,.5) 26px, transparent 27px)," +
+    "radial-gradient(circle at 190px 100%, rgba(34,28,20,.45) 34px, transparent 35px)," +
+    "radial-gradient(circle at 330px 100%, rgba(30,24,18,.5) 22px, transparent 23px)," +
+    "radial-gradient(circle at 460px 100%, rgba(36,30,22,.4) 30px, transparent 31px)";
+  mid.style.backgroundSize = "520px 100%";
+  // 玩家复位到左侧
+  px = 60;
+  facing = 1;
+  PLAYER.classList.remove("facing-left");
+  // 障碍物 & 收集品（先渲染，NPC 需要判断是否站台顶）
+  const lv = LEVEL[s.id] || { obstacles:[], items:[] };
+  obstacles = []; items = [];
+  let npcElev = 0;
+  lv.obstacles.forEach(o => {
+    const ox = worldW * o.x / 100;
+    const el = document.createElement("div");
+    el.className = "obstacle " + (o.type || "crate");
+    el.style.left = ox + "px";
+    el.style.width = o.w + "px";
+    el.style.height = o.h + "px";
+    NPCBOX.appendChild(el);
+    obstacles.push({ x: ox, w: o.w, h: o.h, el });
+    if (o.npcOnTop) npcElev = o.h + 2;
+  });
+  // NPC（CSS 像素角色）
+  const n = s.npc;
+  npcEl = document.createElement("div");
+  npcEl.className = "npc";
+  npcEl.style.left = (worldW * n.pos / 100) + "px";
+  if (npcElev) npcEl.style.bottom = "calc(18% + " + npcElev + "px)";
+  npcEl.innerHTML =
+    '<div class="bubble">💬</div>' +
+    '<div class="sprite ' + (NPC_CHAR[n.key] || "char c-grey") + '">' + charHtmlFor(n.key) + '</div>' +
+    '<div class="tag">' + n.name + '</div>';
+  NPCBOX.appendChild(npcEl);
+  npcX = worldW * n.pos / 100;
+
+  lv.items.forEach(it => {
+    const ix = worldW * it.x / 100;
+    const el = document.createElement("div");
+    el.className = "item " + (it.type || "flyer");
+    el.style.left = ix + "px";
+    el.style.bottom = (GROUND_H * 100 + it.y / screenH * 100) + "%";
+    NPCBOX.appendChild(el);
+    items.push({ x: ix, y: it.y, el, taken: false, type: it.type || "flyer" });
+  });
+}
+
+/* 物理与渲染循环 */
+function loop() {
+  const dt = 1/60;
+  const SPEED = 220, JUMP = 430, GRAV_UP = 900, GRAV_DOWN = 1400;
+  const COYOTE = 0.12, JUMP_BUF = 0.12;  // 土狼/缓冲 120ms
+  const groundY = screenH * GROUND_H;
+
+  if (!inDialogue) {
+    // 水平
+    if (keys.left && !keys.right) { vx = -SPEED; facing = -1; PLAYER.classList.add("facing-left"); PLAYER.classList.add("walk"); }
+    else if (keys.right && !keys.left) { vx = SPEED; facing = 1; PLAYER.classList.remove("facing-left"); PLAYER.classList.add("walk"); }
+    else { vx = 0; PLAYER.classList.remove("walk"); }
+
+    // 土狼时间：在地面时重置，离开地面后倒计时
+    if (onGround) coyoteTimer = COYOTE;
+    else if (coyoteTimer > 0) coyoteTimer -= dt;
+
+    // 跳跃缓冲：按下时记录，之后倒计时
+    if (keys.jump) { jumpBufferTimer = JUMP_BUF; keys.jump = false; }
+    else if (jumpBufferTimer > 0) jumpBufferTimer -= dt;
+
+    // 执行跳跃（土狼 + 缓冲均满足时）
+    if (jumpBufferTimer > 0 && coyoteTimer > 0) {
+      vy = -JUMP;
+      onGround = false;
+      coyoteTimer = 0;
+      jumpBufferTimer = 0;
+      SFX.jump();
+    }
+
+    // 变跳高度：上升中松手 → 截断速度（短跳）
+    if (!keys.jumpHeld && vy < -120) vy = -120;
+
+    // 不对称重力：上升低重力（飘），下降高重力（快落）
+    const g = vy < 0 ? GRAV_UP : GRAV_DOWN;
+    vy += g * dt;
+    const pyPrev = py;
+    const wasAirborne = !onGround;
+    px += vx * dt;
+    py += vy * dt;
+    // 地面
+    let onPlatform = false;
+    if (py >= 0) { py = 0; vy = 0; onGround = true; if (wasAirborne) { SFX.land(); PLAYER.classList.add("landing"); setTimeout(() => PLAYER.classList.remove("landing"), 120); } }
+    // 障碍物碰撞：跳上顶部可站立，不够高则被挡
+    for (const o of obstacles) {
+      const pL = px - PLAYER_W/2, pR = px + PLAYER_W/2;
+      if (pR > o.x && pL < o.x + o.w) {
+        const top = -o.h;
+        if (pyPrev <= top + 0.5 && py >= top && vy >= 0) {
+          // 从上方落下 → 站上平台
+          py = top; vy = 0; onGround = true; onPlatform = true;
+          if (wasAirborne) { SFX.land(); PLAYER.classList.add("landing"); setTimeout(() => PLAYER.classList.remove("landing"), 120); }
+        } else if (py > top) {
+          // 脚在平台顶以下 → 水平挡住
+          if (vx > 0) px = o.x - PLAYER_W/2;
+          else if (vx < 0) px = o.x + o.w + PLAYER_W/2;
+          vx = 0;
+        }
+      }
+    }
+    // 离开平台边缘 → 下落
+    if (py < 0 && !onPlatform && onGround) onGround = false;
+    // 边界
+    if (px < 20) px = 20;
+    if (px > worldW - PLAYER_W - 20) px = worldW - PLAYER_W - 20;
+  } else {
+    vx = 0; PLAYER.classList.remove("walk");
+  }
+
+  // 相机跟随（三层视差：远景 0.35 / 中景 0.65 / 近景 1.0）
+  let cam = px - screenW * 0.4;
+  if (cam < 0) cam = 0;
+  if (cam > worldW - screenW) cam = worldW - screenW;
+  WORLD.style.transform = `translateX(${-cam}px)`;
+  BG.style.transform = `translateX(${-cam * 0.35}px)`;
+  $("mid-layer").style.transform = `translateX(${-cam * 0.65}px)`;
+
+  // 玩家位置（py<0 时跳起，bottom 上移）
+  PLAYER.style.left = px + "px";
+  PLAYER.style.bottom = (GROUND_H * 100 + (-py) / screenH * 100) + "%";
+  PLAYER.style.transform = facing < 0 ? "translateX(-50%) scaleX(-1)" : "translateX(-50%)";
+  PLAYER.classList.toggle("jumping", py < -2);
+
+  // 收集品检测
+  for (const it of items) {
+    if (it.taken) continue;
+    const dx = Math.abs(px - it.x);
+    const dy = Math.abs(-py - it.y);
+    if (dx < 22 && dy < 26) {
+      it.taken = true;
+      it.el.classList.add("collected");
+      itemsCollected++;
+      $("item-num").textContent = itemsCollected;
+      markGallery(it.type);
+      showHistoryToast(it.type);
+      saveProgress();
+      SFX.collect();
+      setTimeout(() => it.el.remove(), 300);
+    }
+  }
+
+  // 交互检测
+  if (!inDialogue && npcEl) {
+    const dist = Math.abs(px - (npcX + 17));
+    const hint = $("interact-hint");
+    if (dist < 80) {
+      hint.classList.add("show");
+      hint.style.left = (npcX + 17 - cam) + "px";
+      hint.style.bottom = (screenH * GROUND_H + 80) + "px";
+      if (keys.act) { startDialogue(currentScene.npc); }
+    } else {
+      hint.classList.remove("show");
+    }
+    keys.act = false;
+  } else {
+    $("interact-hint").classList.remove("show");
+  }
+
+  rafId = requestAnimationFrame(loop);
+}
+
+/* ---------- 对话 ---------- */
+function startDialogue(npc) {
+  inDialogue = true;
+  dlgLines = npc.lines; dlgIdx = 0;
+  $("dlg-portrait").src = imgUrl(npc.portrait);
+  $("dlg-speaker").textContent = npc.name;
+  $("choices").innerHTML = "";
+  $("dialogue-box").classList.add("show");
+  playLine();
+}
+
+function playLine() {
+  const text = dlgLines[dlgIdx];
+  const isLast = dlgIdx === dlgLines.length - 1;
+  dlgTyping = true; dlgDone = false;
+  $("dialog-next").classList.remove("show");
+  const box = $("dialog-text");
+  box.textContent = "";
+  clearInterval(dlgTimer);
+  let i = 0;
+  dlgTimer = setInterval(() => {
+    box.textContent = text.slice(0, ++i);
+    if (i >= text.length) {
+      clearInterval(dlgTimer); dlgTyping = false; dlgDone = true;
+      if (isLast) renderChoices(currentScene.npc.choices);
+      else $("dialog-next").classList.add("show");
+    }
+  }, 32);
+}
+
+function advanceLine() {
+  if (dlgTyping) {
+    clearInterval(dlgTimer);
+    $("dialog-text").textContent = dlgLines[dlgIdx];
+    dlgTyping = false; dlgDone = true;
+    const isLast = dlgIdx === dlgLines.length - 1;
+    if (isLast) renderChoices(currentScene.npc.choices);
+    else $("dialog-next").classList.add("show");
+    return;
+  }
+  if (dlgDone && dlgIdx < dlgLines.length - 1) {
+    dlgIdx++;
+    $("dialog-next").classList.remove("show");
+    SFX.blip();
+    playLine();
+  }
+}
+
+function renderChoices(choices) {
+  const box = $("choices");
+  box.innerHTML = "";
+  choices.forEach((c, i) => {
+    const b = document.createElement("button");
+    b.className = "choice-btn";
+    b.style.animationDelay = (i * 0.1) + "s";
+    b.textContent = c.text;
+    b.onclick = () => {
+      if (c.tag) pathTags.push(c.tag);
+      inDialogue = false;
+      SFX.confirm();
+      showScene(c.next);
+    };
+    box.appendChild(b);
+  });
+}
+
+$("dialogue-box").addEventListener("click", e => {
+  if (e.target.closest(".choice-btn")) return;
+  advanceLine();
+});
+
+/* ---------- 输入 ---------- */
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") keys.left = true;
+  if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") keys.right = true;
+  if (e.key === " " || e.key === "ArrowUp" || e.key === "w" || e.key === "W") { keys.jump = true; keys.jumpHeld = true; }
+  if (e.key === "e" || e.key === "E") keys.act = true;
+  if ([" ","ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) e.preventDefault();
+});
+document.addEventListener("keyup", e => {
+  if (e.key === "ArrowLeft" || e.key === "a" || e.key === "A") keys.left = false;
+  if (e.key === "ArrowRight" || e.key === "d" || e.key === "D") keys.right = false;
+  if (e.key === " " || e.key === "ArrowUp" || e.key === "w" || e.key === "W") keys.jumpHeld = false;
+});
+
+/* 触摸控制 */
+const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+if (isTouch) {
+  $("touch-controls").classList.add("show");
+  $("rotate-hint").classList.add("show");
+}
+document.querySelectorAll(".tc").forEach(btn => {
+  const k = btn.dataset.key;
+  const down = e => { e.preventDefault(); keys[k] = true; if (k === "jump") keys.jumpHeld = true; btn.classList.add("pressed"); };
+  const up = e => { e.preventDefault(); if (k !== "jump" && k !== "act") { keys[k] = false; } if (k === "jump") keys.jumpHeld = false; btn.classList.remove("pressed"); };
+  btn.addEventListener("touchstart", down, { passive: false });
+  btn.addEventListener("touchend", up, { passive: false });
+  btn.addEventListener("touchcancel", up, { passive: false });
+  btn.addEventListener("mousedown", down);
+  btn.addEventListener("mouseup", up);
+  btn.addEventListener("mouseleave", up);
+});
+
+/* ---------- 结尾 ---------- */
+/* 史料图鉴：玩家在游戏中收集的每类物品对应一段真实历史出处 */
+const GALLERY = [
+  { icon: "📜", name: "传单", found: false, desc: "五四时期学生散发的抗日传单，呼吁同胞抵制日货、共赴国难。长沙学生联合会印制了大量传单在街头派发。" },
+  { icon: "📖", name: "书籍", found: false, desc: "蔡和森在法国蒙达尔纪翻译马克思主义著作，如《共产党宣言》法文版，寄回国内深刻影响毛泽东等人。" },
+  { icon: "📄", name: "稿纸", found: false, desc: "《湘江评论》编辑部使用粗糙毛边纸印刷。毛泽东亲任主编，创刊号印2000份，一天售罄。" },
+  { icon: "✉", name: "信件", found: false, desc: "蔡和森从法国致信毛泽东（1920年8月），首次明确提出\"正式成立一个中国共产党\"的主张。" }
+];
+let galleryState = { flyer: false, book: false, paper: false, letter: false };
+function renderGallery() {
+  const box = $("gallery"); box.innerHTML = "";
+  GALLERY.forEach(g => {
+    const el = document.createElement("div");
+    el.className = "gal-item" + (g.found ? " found" : "");
+    el.innerHTML = '<div class="gal-icon">' + g.icon + '</div><div class="gal-name">' + g.name + '</div>';
+    el.title = g.found ? g.desc : "未收集";
+    box.appendChild(el);
+  });
+}
+// 收集品类型 → 图鉴标记
+const ITEM_GAL_MAP = { flyer: "flyer", book: "book", paper: "paper", letter: "letter", " flyers": "flyer" };
+function markGallery(type) {
+  const key = ITEM_GAL_MAP[type] || type;
+  if (key === "flyer") GALLERY[0].found = true;
+  if (key === "book") GALLERY[1].found = true;
+  if (key === "paper") GALLERY[2].found = true;
+  if (key === "letter") GALLERY[3].found = true;
+}
+
+/* 收集时的史料弹窗（3 秒自动消失） */
+let toastTimer = null;
+function showHistoryToast(type) {
+  const g = GALLERY[["flyer","book","paper","letter"].indexOf(type)];
+  if (!g) return;
+  const el = $("history-toast");
+  el.textContent = g.icon + " " + g.desc;
+  el.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+}
+
+/* ---------- 进度记忆（localStorage） ---------- */
+const SAVE_KEY = "wusi1919_save";
+function saveProgress() {
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+      scene: currentScene ? currentScene.id : "start",
+      pathTags: pathTags,
+      itemsCollected: itemsCollected,
+      gallery: GALLERY.map(g => g.found)
+    }));
+  } catch (e) {}
+}
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+function clearProgress() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+
+function showEnding(e) {
+  $("ending-title").textContent = e.title;
+  const collectInfo = itemsCollected > 0
+    ? `\n\n你沿途收集了 ${itemsCollected} / ${gameTotalItems} 份传单与书籍——它们和你的脚步一起，构成了这段旅程。`
+    : "";
+  $("ending-text").textContent = e.text + collectInfo;
+  const list = $("path-list");
+  list.innerHTML = "";
+  if (pathTags.length === 0) list.innerHTML = '<span class="path-chip">（未作选择）</span>';
+  else pathTags.forEach(t => {
+    const s = document.createElement("span");
+    s.className = "path-chip"; s.textContent = t; list.appendChild(s);
+  });
+  const counts = {};
+  pathTags.forEach(t => counts[t] = (counts[t] || 0) + 1);
+  let best = null;
+  ["求学", "结社", "传播", "行动"].forEach(t => {
+    if (counts[t] && (!best || counts[t] > counts[best])) best = t;
+  });
+  const f = best ? FIGURES[best] : null;
+  $("fc-name").textContent = f ? f.name : "—";
+  $("fc-years").textContent = f ? f.years : "";
+  $("fc-desc").textContent = f ? f.desc : "完成游戏后，这里会根据你的选择给出匹配。";
+  const q = $("fc-quote");
+  if (f && f.quote) { q.textContent = f.quote; q.style.display = "block"; }
+  else q.style.display = "none";
+  $("fc-impact").textContent = f ? f.impact : "";
+  renderGallery();
+  const imgEl = $("fc-img"), wrap = imgEl.parentElement;
+  wrap.style.display = f ? "block" : "none";
+  if (f) { imgEl.style.display = "none"; preload(f.img, () => { imgEl.src = imgUrl(f.img); imgEl.style.display = "block"; }); }
+
+  const stats = $("stats"); stats.innerHTML = "";
+  CONFIG.stats.forEach(r => {
+    const row = document.createElement("div");
+    row.className = "stat-row";
+    row.innerHTML =
+      '<div class="stat-label">' + r.label + '</div>' +
+      '<div class="stat-track"><div class="stat-fill" data-pct="' + r.pct + '"></div></div>' +
+      '<div class="stat-pct">' + r.pct + '%</div>';
+    stats.appendChild(row);
+  });
+  inDialogue = false;
+  showOnly(ENDSCR);
+  requestAnimationFrame(() => setTimeout(() => {
+    stats.querySelectorAll(".stat-fill").forEach(el => el.style.width = el.dataset.pct + "%");
+  }, 150));
+}
+</script>
+</body>
+</html>
