@@ -569,6 +569,16 @@
     opacity: 0; pointer-events: none; transition: opacity .35s, transform .35s;
   }
   #history-toast.show { opacity: 1; transform: translateX(-50%) translateY(4px); }
+  /* 开局跳跃提示（长按跳得更高） */
+  #jump-tip {
+    position: absolute; top: 96px; left: 50%; transform: translateX(-50%);
+    z-index: 40; padding: 8px 16px; white-space: nowrap;
+    background: rgba(24,20,16,.85); border: 1px solid rgba(220,190,120,.55);
+    color: #ffe9b8; font-size: 13px; letter-spacing: 2px;
+    opacity: 0; pointer-events: none; transition: opacity .4s;
+  }
+  #jump-tip.show { opacity: 1; animation: tipBob 1s ease-in-out infinite; }
+  @keyframes tipBob { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(-4px)} }
   /* 视差中景层（远景建筑/树影剪影） */
   #mid-layer {
     position: absolute; top: 0; left: 0; height: 82%; pointer-events: none;
@@ -685,6 +695,7 @@
     </div>
     <div id="scene-label"></div>
     <div id="history-toast"></div>
+    <div id="jump-tip"></div>
     <div id="rotate-hint"><div>竖屏可玩 · 横屏视野更完整</div></div>
     <div id="item-count">📜 <span id="item-num">0</span> / <span id="item-total">0</span></div>
     <button id="sound-btn" onclick="toggleSound()">🔊</button>
@@ -956,27 +967,31 @@ const TITLE = $("title-screen"), GAME = $("game-screen"), ENDSCR = $("ending-scr
 function showOnly(el) { [TITLE, GAME, ENDSCR].forEach(s => s.classList.remove("active")); el.classList.add("active"); }
 
 setBg($("title-bg"), "cover");
-/* 带进度的全量预加载 */
+/* 分级加载：只等 4 张关键图（封面+首场景+次场景+首个NPC头像）即可开始，其余 12 张后台静默加载 */
 (function preloadAll() {
-  const total = IMG_KEYS.length;
+  const CRITICAL = ["cover", "courtyard", "dock", "npc_he"];
+  const REST = IMG_KEYS.filter(k => !CRITICAL.includes(k));
   let done = 0;
   const fill = $("load-fill"), text = $("load-text"), wrap = $("load-wrap"), btn = $("start-btn");
+  function ready() {
+    text.textContent = "加载完成";
+    setTimeout(() => {
+      wrap.style.display = "none"; btn.style.display = "inline-block";
+      // 有存档时显示「继续旅程」
+      const sv = loadProgress();
+      if (sv && sv.scene && sv.scene !== "start") $("continue-btn").style.display = "block";
+    }, 350);
+    // 后台继续加载其余图片（不阻塞开始）
+    REST.forEach(k => preload(k));
+  }
   function tick() {
     done++;
-    const pct = Math.round(done / total * 100);
+    const pct = Math.round(done / CRITICAL.length * 100);
     fill.style.width = pct + "%";
     text.textContent = "史料加载中 … " + pct + "%";
-    if (done >= total) {
-      text.textContent = "加载完成";
-      setTimeout(() => {
-        wrap.style.display = "none"; btn.style.display = "inline-block";
-        // 有存档时显示「继续旅程」
-        const sv = loadProgress();
-        if (sv && sv.scene && sv.scene !== "start") $("continue-btn").style.display = "block";
-      }, 350);
-    }
+    if (done >= CRITICAL.length) ready();
   }
-  IMG_KEYS.forEach(k => preload(k, tick, tick));
+  CRITICAL.forEach(k => preload(k, tick, tick));
 })();
 
 $("start-btn").onclick = () => { clearProgress(); pathTags = []; initAudio(); showOnly(GAME); startGame(); };
@@ -1065,6 +1080,13 @@ function startGame(startScene, sv) {
   startBgm();
   showScene(startScene || "start");
   if (!rafId) loop();
+  /* 开局提示：长按跳得更高（仅全新开局显示一次，5 秒后自动消失） */
+  if (!startScene && !sv) {
+    const tip = $("jump-tip");
+    tip.textContent = isTouch ? "💡 长按「跳」键，跳得更高" : "💡 长按空格键，跳得更高";
+    setTimeout(() => tip.classList.add("show"), 1600);
+    setTimeout(() => tip.classList.remove("show"), 6600);
+  }
 }
 
 /* NPC 角色外观映射（key → CSS 类） */
