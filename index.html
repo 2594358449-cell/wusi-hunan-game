@@ -21,7 +21,7 @@
     padding: 40px 32px 56px; background: #1a1612;
   }
   #title-bg {
-    position: absolute; inset: 0; background: #2a241c center/cover no-repeat;
+    position: absolute; inset: 0; background: #2a241c center bottom/cover no-repeat;
     image-rendering: pixelated; opacity: 0; transition: opacity 1.2s ease;
   }
   #title-bg::after {
@@ -91,7 +91,7 @@
   #game-screen { background: #241f19; overflow: hidden; }
   #scene-bg {
     position: absolute; top: 0; bottom: 0; left: 0; width: 100%;
-    background: center/cover no-repeat; image-rendering: pixelated;
+    background: center bottom/cover no-repeat; image-rendering: pixelated;
     transform-origin: left center;
   }
   #scene-bg::after {
@@ -550,18 +550,16 @@
   .tc-act { right: 14px; bottom: 20px; width: 66px; height: 66px; border-radius: 50%; font-size: 14px; }
   .tc:active, .tc.pressed { background: rgba(140,43,43,.55); transform: scale(.9); }
   .tc { transition: transform .06s, background .06s; touch-action: none; user-select: none; -webkit-user-select: none; }
-  /* 竖屏旋转提示 */
+  /* 竖屏提示（非阻塞小条，3 秒自动消失，不挡游戏） */
   #rotate-hint {
-    position: absolute; inset: 0; z-index: 60; display: none;
-    background: rgba(20,17,14,.92); color: #f0e4cc;
-    align-items: center; justify-content: center; text-align: center;
-    font-size: 15px; letter-spacing: 3px; line-height: 2.2; padding: 0 30px;
+    position: absolute; top: 46px; left: 50%; transform: translateX(-50%);
+    z-index: 60; display: none; pointer-events: none;
+    background: rgba(20,17,14,.75); color: #f0e4cc; border: 1px solid rgba(200,180,140,.4);
+    padding: 6px 14px; font-size: 12px; letter-spacing: 2px; white-space: nowrap;
+    transition: opacity .5s;
   }
-  #rotate-hint .rot-icon { font-size: 34px; display: block; margin-bottom: 12px; animation: rotPulse 1.6s ease-in-out infinite; }
-  @keyframes rotPulse { 0%,100%{transform:rotate(0)} 50%{transform:rotate(90deg)} }
-  @media (orientation: portrait) and (max-width: 600px) {
-    #game-screen #rotate-hint.show { display: flex; }
-  }
+  #rotate-hint.fade { opacity: 0; }
+  #rotate-hint .rot-icon { display: none; }
   /* 史料弹窗（收集提示） */
   #history-toast {
     position: absolute; top: 52px; left: 50%; transform: translateX(-50%);
@@ -687,7 +685,7 @@
     </div>
     <div id="scene-label"></div>
     <div id="history-toast"></div>
-    <div id="rotate-hint"><div><span class="rot-icon">📱</span>建议横屏体验<br>旋转设备获得完整视野</div></div>
+    <div id="rotate-hint"><div>竖屏可玩 · 横屏视野更完整</div></div>
     <div id="item-count">📜 <span id="item-num">0</span> / <span id="item-total">0</span></div>
     <button id="sound-btn" onclick="toggleSound()">🔊</button>
     <div id="interact-hint">按 <b>E</b> 对话</div>
@@ -738,7 +736,7 @@
       <div id="gallery"></div>
     </div>
     <div class="block">
-      <h3>问卷 Q8 · 班级选择分布（示例数据）</h3>
+      <h3>问卷 Q9 ·「若回 1919 年的长沙，你会选哪条路？」（真实数据，n=89）</h3>
       <div id="stats"></div>
     </div>
     <button id="restart-btn">再走一遍</button>
@@ -940,11 +938,12 @@ const FIGURES = {
 };
 
 const CONFIG = {
+  /* 真实问卷数据：《大学生对五四运动时期湖南青年救国探索的认识》，89 份有效答卷，第 9 题 */
   stats: [
-    { label: "求学：外出读书，寻找真理", pct: 18 },
-    { label: "结社：组织同学，凝聚力量", pct: 22 },
-    { label: "传播：办报写文，唤醒民众", pct: 34 },
-    { label: "行动：上街请愿，直接斗争", pct: 26 }
+    { label: "求学：继续读书或赴法勤工俭学，先把真理找出来", pct: 43.82 },
+    { label: "结社：和志同道合的同学组成团体，一起探索", pct: 30.34 },
+    { label: "传播：办报纸、写文章，唤醒更多人", pct: 15.73 },
+    { label: "行动：直接上街游行、请愿、抵制日货", pct: 8.99 }
   ]
 };
 
@@ -1309,12 +1308,12 @@ function renderScene(s) {
   obstacles = []; items = [];
   let npcElev = 0;
   lv.obstacles.forEach(o => {
-    const ox = worldW * o.x / 100;
+    const ox = Math.round(worldW * o.x / 100);
     const el = document.createElement("div");
     el.className = "obstacle " + (o.type || "crate");
     el.style.left = ox + "px";
-    el.style.width = o.w + "px";
-    el.style.height = o.h + "px";
+    el.style.width = Math.round(o.w) + "px";
+    el.style.height = Math.round(o.h) + "px";
     NPCBOX.appendChild(el);
     obstacles.push({ x: ox, w: o.w, h: o.h, el });
     if (o.npcOnTop) npcElev = o.h + 2;
@@ -1323,7 +1322,7 @@ function renderScene(s) {
   const n = s.npc;
   npcEl = document.createElement("div");
   npcEl.className = "npc";
-  npcEl.style.left = (worldW * n.pos / 100) + "px";
+  npcEl.style.left = Math.round(worldW * n.pos / 100) + "px";
   if (npcElev) npcEl.style.bottom = "calc(18% + " + npcElev + "px)";
   npcEl.innerHTML =
     '<div class="bubble">💬</div>' +
@@ -1333,11 +1332,11 @@ function renderScene(s) {
   npcX = worldW * n.pos / 100;
 
   lv.items.forEach(it => {
-    const ix = worldW * it.x / 100;
+    const ix = Math.round(worldW * it.x / 100);
     const el = document.createElement("div");
     el.className = "item " + (it.type || "flyer");
     el.style.left = ix + "px";
-    el.style.bottom = (GROUND_H * 100 + it.y / screenH * 100) + "%";
+    el.style.bottom = "calc(" + (GROUND_H * 100) + "% + " + Math.round(it.y) + "px)";
     NPCBOX.appendChild(el);
     items.push({ x: ix, y: it.y, el, taken: false, type: it.type || "flyer", story: it.story || "" });
   });
@@ -1420,9 +1419,9 @@ function loop() {
   BG.style.transform = `translateX(${-cam * 0.35}px)`;
   $("mid-layer").style.transform = `translateX(${-cam * 0.65}px)`;
 
-  // 玩家位置（py<0 时跳起，bottom 上移）
-  PLAYER.style.left = px + "px";
-  PLAYER.style.bottom = (GROUND_H * 100 + (-py) / screenH * 100) + "%";
+  // 玩家位置（py<0 时跳起，bottom 上移；坐标取整防亚像素穿模）
+  PLAYER.style.left = Math.round(px) + "px";
+  PLAYER.style.bottom = Math.round(GROUND_H * screenH + (-py)) + "px";
   PLAYER.style.transform = facing < 0 ? "translateX(-50%) scaleX(-1)" : "translateX(-50%)";
   PLAYER.classList.toggle("jumping", py < -2);
 
@@ -1553,8 +1552,19 @@ document.addEventListener("keyup", e => {
 const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 if (isTouch) {
   $("touch-controls").classList.add("show");
-  $("rotate-hint").classList.add("show");
+  // 竖屏小提示：仅竖屏时短暂显示，3 秒自动消失，不阻塞操作
+  if (matchMedia("(orientation: portrait)").matches) {
+    const rh = $("rotate-hint");
+    rh.style.display = "block";
+    setTimeout(() => { rh.classList.add("fade"); setTimeout(() => rh.style.display = "none", 600); }, 3000);
+  }
 }
+/* 旋转/缩放窗口时更新屏幕尺寸（竖横屏切换不中断游戏） */
+window.addEventListener("resize", () => {
+  if (!GAME.classList.contains("active")) return;
+  screenW = GAME.clientWidth;
+  screenH = GAME.clientHeight;
+});
 document.querySelectorAll(".tc").forEach(btn => {
   const k = btn.dataset.key;
   const down = e => { e.preventDefault(); keys[k] = true; if (k === "jump") keys.jumpHeld = true; btn.classList.add("pressed"); };
