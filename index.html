@@ -1126,8 +1126,8 @@ const LEVEL = {
       { x:44, w:38, h:50, type:"crate" }
     ],
     items: [
-      { x:32, y:52, type:"flyer" },
-      { x:47, y:78, type:"paper" }
+      { x:32, y:52, type:"flyer", story:"1917年，湖南第一师范实行「体育、智育、德育」并重，杨昌济先生倡导「立志、修身」" },
+      { x:47, y:78, type:"paper", story:"毛泽东在一师求学时写《心之力》，杨昌济破例给出满分并加五分" }
     ]
   },
   /* 求学·码头：登船阶梯——跳上两级木箱，再登上船台与蔡和森对话 */
@@ -1138,9 +1138,9 @@ const LEVEL = {
       { x:60, w:28, h:110, type:"deck", npcOnTop:true }
     ],
     items: [
-      { x:29, y:56, type:"flyer" },
-      { x:40, y:78, type:"flyer" },
-      { x:70, y:132, type:"letter" }
+      { x:29, y:56, type:"flyer", story:"1918年夏，蔡和森赴京筹办留法勤工俭学，「使我们的同志全体赴法」" },
+      { x:40, y:78, type:"flyer", story:"1919年12月，蔡和森携母亲葛健豪、妹妹蔡畅同船赴法，全家求学传为佳话" },
+      { x:70, y:132, type:"letter", story:"1920年8月13日，蔡和森自法国致信毛泽东，首次明确提出「正式成立一个中国共产党」" }
     ]
   },
   /* 法国·蒙达尔纪：石桶连跳——第二桶更高，弧形三本书（猛看猛译） */
@@ -1150,9 +1150,9 @@ const LEVEL = {
       { x:48, w:34, h:56, type:"barrel" }
     ],
     items: [
-      { x:38, y:92, type:"book" },
-      { x:50, y:112, type:"book" },
-      { x:62, y:92, type:"book" }
+      { x:38, y:92, type:"book", story:"在蒙达尔纪，蔡和森「猛看猛译」法文版《共产党宣言》，并把译稿寄回国内" },
+      { x:50, y:112, type:"book", story:"蔡和森半年内译出《共产党宣言》《社会主义从空想到科学的发展》等重要著作" },
+      { x:62, y:92, type:"book", story:"1920年7月蒙达尔纪会议，蔡和森提出「组织中国共产党，实行无产阶级专政」" }
     ]
   },
   /* 留京·北大图书馆：高书架（80px），第二架顶上有书需站上去拿 */
@@ -1162,8 +1162,8 @@ const LEVEL = {
       { x:52, w:26, h:80, type:"shelf" }
     ],
     items: [
-      { x:32, y:92, type:"book" },
-      { x:53, y:96, type:"book" }
+      { x:32, y:92, type:"book", story:"1918年，毛泽东任北大图书馆助理员，在李大钊影响下开始接触马克思主义" },
+      { x:53, y:96, type:"book", story:"毛泽东后来回忆：「我在李大钊手下工作时，迅速地朝着马克思主义的方向发展」" }
     ]
   },
   /* 结社·一师校园：双布告栏节奏跳 */
@@ -1173,8 +1173,8 @@ const LEVEL = {
       { x:52, w:56, h:34, type:"barricade" }
     ],
     items: [
-      { x:38, y:56, type:"flyer" },
-      { x:58, y:62, type:"flyer" }
+      { x:38, y:56, type:"flyer", story:"1918年4月14日，新民学会在长沙蔡和森家中成立，首批会员13人" },
+      { x:58, y:62, type:"flyer", story:"新民学会宗旨：「革新学术，砥砺品行，改良人心风俗」" }
     ]
   },
   /* 罢课·游行：四连拒马节奏跳，沿途散发传单 */
@@ -1186,9 +1186,9 @@ const LEVEL = {
       { x:53, w:36, h:30, type:"barricade" }
     ],
     items: [
-      { x:26, y:58, type:"flyer" },
-      { x:37, y:58, type:"flyer" },
-      { x:48, y:58, type:"flyer" }
+      { x:26, y:58, type:"flyer", story:"1919年五四消息传到长沙，湖南学生联合会成立，彭璜当选会长" },
+      { x:37, y:58, type:"flyer", story:"1919年6月3日，长沙全城学生总罢课，声援北京学生运动" },
+      { x:48, y:58, type:"flyer", story:"学生们走上街头散发传单、演讲募捐，「还我青岛」「拒签和约」的口号响彻长沙" }
     ]
   },
   /* 办报·湘江评论创刊：墨桶错位双跳 + 收稿纸 */
@@ -1198,8 +1198,8 @@ const LEVEL = {
       { x:48, w:34, h:56, type:"barrel" }
     ],
     items: [
-      { x:30, y:66, type:"paper" },
-      { x:56, y:84, type:"paper" }
+      { x:30, y:66, type:"paper", story:"1919年7月14日《湘江评论》在长沙创刊，毛泽东任主编，「天下者我们的天下」" },
+      { x:56, y:84, type:"paper", story:"《湘江评论》创刊号2000份一天售罄，毛泽东连夜写稿、亲自排版校对" }
     ]
   },
   /* 报馆：木箱阶梯 + 高墨桶（箱顶→桶顶连跳） */
@@ -1210,8 +1210,8 @@ const LEVEL = {
       { x:58, w:30, h:80, type:"barrel" }
     ],
     items: [
-      { x:43, y:88, type:"paper" },
-      { x:60, y:108, type:"paper" }
+      { x:43, y:88, type:"paper", story:"毛泽东在《湘江评论》连载《民众的大联合》，被誉为当年最有分量的政论之一" },
+      { x:60, y:108, type:"paper", story:"《湘江评论》仅出五期即被军阀张敬尧查封，但文章已被京沪报刊争相转载" }
     ]
   },
   /* 驱张·请愿：人潮长廊——木箱、拒马、墨桶混合四连，全程最难 */
@@ -1223,9 +1223,9 @@ const LEVEL = {
       { x:64, w:40, h:36, type:"barricade" }
     ],
     items: [
-      { x:24, y:72, type:"flyer" },
-      { x:52, y:84, type:"flyer" },
-      { x:68, y:64, type:"flyer" }
+      { x:24, y:72, type:"flyer", story:"1919年12月，毛泽东率驱张请愿团北上，向全国揭露张敬尧祸湘罪行" },
+      { x:52, y:84, type:"flyer", story:"彭璜在上海创办《天问》周刊，作为驱张运动的舆论阵地" },
+      { x:68, y:64, type:"flyer", story:"1920年6月，张敬尧被逐出湖南，驱张运动取得胜利" }
     ]
   },
   /* 围炉·抉择：平静收尾，无障碍 */
@@ -1339,7 +1339,7 @@ function renderScene(s) {
     el.style.left = ix + "px";
     el.style.bottom = (GROUND_H * 100 + it.y / screenH * 100) + "%";
     NPCBOX.appendChild(el);
-    items.push({ x: ix, y: it.y, el, taken: false, type: it.type || "flyer" });
+    items.push({ x: ix, y: it.y, el, taken: false, type: it.type || "flyer", story: it.story || "" });
   });
 }
 
@@ -1437,7 +1437,7 @@ function loop() {
       itemsCollected++;
       $("item-num").textContent = itemsCollected;
       markGallery(it.type);
-      showHistoryToast(it.type);
+      showHistoryToast(it.type, it.story);
       saveProgress();
       SFX.collect();
       setTimeout(() => it.el.remove(), 300);
@@ -1596,16 +1596,16 @@ function markGallery(type) {
   if (key === "letter") GALLERY[3].found = true;
 }
 
-/* 收集时的史料弹窗（3 秒自动消失） */
+/* 收集时的史料弹窗：每个物品显示专属背景故事（4 秒自动消失） */
 let toastTimer = null;
-function showHistoryToast(type) {
+function showHistoryToast(type, story) {
   const g = GALLERY[["flyer","book","paper","letter"].indexOf(type)];
   if (!g) return;
   const el = $("history-toast");
-  el.textContent = g.icon + " " + g.desc;
+  el.textContent = g.icon + " " + (story || g.desc);
   el.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove("show"), 3000);
+  toastTimer = setTimeout(() => el.classList.remove("show"), 4000);
 }
 
 /* ---------- 进度记忆（localStorage） ---------- */
