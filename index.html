@@ -17,27 +17,50 @@
 
   /* ---------- 标题页 ---------- */
   #title-screen {
-    align-items: center; justify-content: flex-end; text-align: center;
-    padding: 40px 32px 56px; background: #1a1612;
+    align-items: center; text-align: center;
+    background: #1a1612; padding: 0;
   }
   #title-bg {
-    position: absolute; inset: 0; background: #2a241c center bottom/cover no-repeat;
+    position: absolute; inset: 0; background: #2a241c center 22%/cover no-repeat;
     image-rendering: pixelated; opacity: 0; transition: opacity 1.2s ease;
   }
   #title-bg::after {
     content: ""; position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse at 50% 78%, rgba(20,17,14,.94) 0%, rgba(20,17,14,.62) 42%, rgba(20,17,14,.35) 70%),
-      linear-gradient(to bottom, rgba(20,17,14,.55), rgba(20,17,14,.15) 30%, rgba(20,17,14,.1) 60%, rgba(20,17,14,.78));
+    background: linear-gradient(to bottom,
+      rgba(20,17,14,.10) 0%, rgba(20,17,14,0) 34%,
+      rgba(20,17,14,.30) 62%, rgba(20,17,14,.72) 100%);
   }
-  #title-content { position: relative; z-index: 2; }
-  #title-screen .years { font-size: 14px; letter-spacing: 6px; color: #cbbb96; margin-bottom: 20px; }
+  #title-content {
+    position: relative; z-index: 2; width: 100%; height: 100%;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  /* 封面上部：年代 + 主标题（压在天空留白处，用墨色保证可读性） */
+  .cover-top { padding-top: 11%; }
+  #title-screen .years { font-size: 13px; letter-spacing: 5px; color: #6a5138; margin-bottom: 14px; }
   #title-screen h1 {
-    font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #f2e8d2;
-    line-height: 1.5; margin-bottom: 14px; text-shadow: 0 2px 24px rgba(0,0,0,.6);
+    font-size: 42px; font-weight: 700; letter-spacing: 10px; color: #33241a;
+    line-height: 1.55; text-shadow: 0 1px 0 rgba(255,244,220,.55), 0 3px 18px rgba(255,240,210,.4);
   }
-  #title-screen .sub { font-size: 15px; color: #d8c9a8; letter-spacing: 3px; margin-bottom: 16px; }
-  #title-screen .ctrl-hint { font-size: 12px; color: #8a7a5c; letter-spacing: 2px; margin-bottom: 24px; line-height: 1.8; }
+  /* 印章：红色方形单字印，民国海报元素 */
+  .seal {
+    display: inline-block; vertical-align: 8px; margin-left: 10px;
+    width: 30px; height: 30px; line-height: 26px;
+    font-size: 17px; letter-spacing: 0; color: #f2e0c8;
+    background: #9a2e2e; border: 2px solid #7a1e1e;
+    box-shadow: inset 0 0 0 1.5px rgba(242,224,200,.55), 0 2px 6px rgba(0,0,0,.25);
+    text-shadow: none;
+  }
+  /* 封面下部：操作面板（暗色渐变托底） */
+  .panel {
+    padding: 44px 30px 26px;
+    background: linear-gradient(to bottom, rgba(20,17,14,0) 0%, rgba(20,17,14,.78) 22%, rgba(16,13,10,.94) 100%);
+  }
+  #title-screen .sub { font-size: 15px; color: #e0d0ac; letter-spacing: 3px; margin-bottom: 12px; }
+  #title-screen .ctrl-hint {
+    display: inline-block; font-size: 11px; color: #b3a284; letter-spacing: 1.5px;
+    line-height: 1.8; margin-bottom: 20px; padding: 5px 14px;
+    border: 1px solid rgba(200,180,140,.28); background: rgba(20,17,14,.4);
+  }
   /* 加载进度条 */
   #load-wrap { width: 220px; margin: 0 auto; }
   #load-bar {
@@ -50,19 +73,25 @@
     transition: width .18s ease-out;
   }
   #load-text { margin-top: 8px; font-size: 12px; color: #c8a858; letter-spacing: 2px; text-align: center; }
+  /* 主按钮：复古像素立体按键 */
   #start-btn {
-    border: 1.5px solid #b85c5c; color: #f0e4cc; background: rgba(140,43,43,.32);
-    font-family: inherit; font-size: 17px; letter-spacing: 6px; padding: 13px 46px;
-    cursor: pointer; transition: all .25s;
+    border: none; color: #f5e6cc; background: #8c2b2b;
+    font-family: inherit; font-size: 17px; letter-spacing: 8px; padding: 14px 52px;
+    cursor: pointer; transition: transform .08s, box-shadow .08s;
+    box-shadow: inset 0 3px 0 rgba(255,255,255,.18), inset 0 -4px 0 rgba(0,0,0,.38), 0 4px 14px rgba(0,0,0,.4);
   }
-  #start-btn:active { background: rgba(140,43,43,.75); }
+  #start-btn:active {
+    transform: translateY(2px);
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.12), inset 0 -2px 0 rgba(0,0,0,.38), 0 1px 6px rgba(0,0,0,.4);
+  }
   #continue-btn {
     margin-top: 12px; display: block; margin-left: auto; margin-right: auto;
-    border: 1.5px solid #8a7a5c; color: #c9bda2; background: transparent;
+    border: 1.5px solid #8a7a5c; color: #c9bda2; background: rgba(20,17,14,.35);
     font-family: inherit; font-size: 13px; letter-spacing: 4px; padding: 9px 30px;
     cursor: pointer; transition: all .25s;
   }
   #continue-btn:active { background: rgba(200,180,140,.2); }
+  .credit { margin-top: 20px; font-size: 10px; letter-spacing: 1.5px; color: rgba(200,180,140,.45); }
 
   /* ---------- 转场卡 ---------- */
   #scene-overlay {
@@ -533,7 +562,6 @@
   .choice-btn:active { background: rgba(140,43,43,.7); }
   .choice-btn::before { content: "▍"; color: #c25656; margin-right: 6px; }
   @keyframes rise { to { opacity: 1; transform: translateY(0); } }
-
   /* 移动端虚拟按键 */
   #touch-controls {
     position: absolute; inset: 0; z-index: 30; pointer-events: none; display: none;
@@ -650,16 +678,21 @@
   <section id="title-screen" class="active">
     <div id="title-bg"></div>
     <div id="title-content">
-      <div class="years">1918 — 1921</div>
-      <h1>五四风雷<br>在湖南</h1>
-      <div class="sub">一群青年如何寻找救国道路</div>
-      <div class="ctrl-hint">← → 移动 &nbsp; 空格 跳跃 &nbsp; E 对话<br>（移动端使用屏幕按键）</div>
-      <div id="load-wrap">
-        <div id="load-bar"><div id="load-fill"></div></div>
-        <div id="load-text">史料加载中 … 0%</div>
+      <div class="cover-top">
+        <div class="years">— 1918 — 1921 —</div>
+        <h1>五四风雷<br>在湖南<span class="seal">湘</span></h1>
       </div>
-      <button id="start-btn" style="display:none">开 始</button>
-      <button id="continue-btn" style="display:none">继续旅程</button>
+      <div class="panel">
+        <div class="sub">一群青年如何寻找救国道路</div>
+        <div class="ctrl-hint">← → 移动 · 空格 跳跃 · E 对话<br>（移动端使用屏幕按键）</div>
+        <div id="load-wrap">
+          <div id="load-bar"><div id="load-fill"></div></div>
+          <div id="load-text">史料加载中 … 0%</div>
+        </div>
+        <button id="start-btn" style="display:none">开 始</button>
+        <button id="continue-btn" style="display:none">继续旅程</button>
+        <div class="credit">中南大学 · 《中国近现代史纲要》课堂小组作品</div>
+      </div>
     </div>
   </section>
 
@@ -774,7 +807,10 @@ function preload(key, ok, fail) {
   im.src = imgUrl(key);
 }
 function setBg(layer, key) {
-  preload(key, () => { layer.style.backgroundImage = 'url("' + imgUrl(key) + '")'; });
+  preload(key, () => {
+    layer.style.backgroundImage = 'url("' + imgUrl(key) + '")';
+    layer.style.opacity = "1";
+  });
 }
 
 /* ============ 剧本 ============
@@ -1489,7 +1525,9 @@ function loop() {
 function startDialogue(npc) {
   inDialogue = true;
   dlgLines = npc.lines; dlgIdx = 0;
-  $("dlg-portrait").src = imgUrl(npc.portrait);
+  const pImg = $("dlg-portrait");
+  if (npc.portrait) { pImg.style.display = "block"; pImg.src = imgUrl(npc.portrait); }
+  else { pImg.style.display = "none"; }
   $("dlg-speaker").textContent = npc.name;
   $("choices").innerHTML = "";
   $("dialogue-box").classList.add("show");
